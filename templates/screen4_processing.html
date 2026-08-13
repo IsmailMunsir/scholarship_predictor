@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Analysing...{% endblock %}
+
+{% block content %}
+<div class="processing-page">
+  <div class="processing-card">
+
+    <div class="spinner"></div>
+    <h2 id="status-text"
+        class="processing-title">
+      Analysing your profile...
+    </h2>
+    <p class="processing-sub">
+      Please wait while we check your eligibility
+    </p>
+
+    <div class="checklist">
+      <div class="check-item" id="chk1">
+        <span class="check-icon">○</span>
+        <span>Z-score eligibility check</span>
+      </div>
+      <div class="check-item" id="chk2">
+        <span class="check-icon">○</span>
+        <span>Income band matching</span>
+      </div>
+      <div class="check-item" id="chk3">
+        <span class="check-icon">○</span>
+        <span>District quota verification</span>
+      </div>
+      <div class="check-item" id="chk4">
+        <span class="check-icon">○</span>
+        <span>ML probability ranking</span>
+      </div>
+    </div>
+
+    <div id="error-msg"
+         class="alert alert-error"
+         style="display:none;margin-top:1.5rem;">
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const checks = ['chk1','chk2','chk3','chk4'];
+const labels = [
+  'Z-score eligibility check',
+  'Income band matching',
+  'District quota verification',
+  'ML probability ranking'
+];
+
+function tick(i) {
+  if (i >= checks.length) return;
+  const el   = document.getElementById(checks[i]);
+  const icon = el.querySelector('.check-icon');
+  icon.textContent = '✓';
+  el.classList.add('check-done');
+  document.getElementById('status-text')
+    .textContent = labels[i] + ' complete';
+  setTimeout(() => tick(i + 1), 500);
+}
+
+setTimeout(() => tick(0), 300);
+
+setTimeout(() => {
+  fetch('/predict', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({})
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      document.getElementById('status-text')
+        .textContent = 'Done! Loading results...';
+      setTimeout(() => {
+        window.location.href = '/results';
+      }, 500);
+    } else {
+      document.querySelector('.spinner')
+        .style.display = 'none';
+      const err = document.getElementById('error-msg');
+      err.textContent = 'Error: ' +
+        (data.error || 'Please try again.');
+      err.style.display = 'block';
+    }
+  })
+  .catch(() => {
+    document.querySelector('.spinner')
+      .style.display = 'none';
+    const err = document.getElementById('error-msg');
+    err.textContent =
+      'Network error. Please try again.';
+    err.style.display = 'block';
+  });
+}, 2400);
+</script>
+{% endblock %}

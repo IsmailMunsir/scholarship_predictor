@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+
+  <div class="profile-header">
+    <div class="profile-avatar">
+      {{ current_user.full_name[0].upper() }}
+    </div>
+    <div>
+      <h1 class="profile-name">
+        {{ current_user.full_name }}
+      </h1>
+      <p class="profile-email">
+        {{ current_user.email }}
+      </p>
+      <span class="badge-verified">
+        ✓ Verified
+      </span>
+    </div>
+  </div>
+
+  {% with messages =
+     get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+    <div class="form-alert alert-{{ cat }}">
+      {{ msg }}
+    </div>
+    {% endfor %}
+  {% endwith %}
+
+  <div class="profile-grid">
+
+    <!-- Change password -->
+    <div class="profile-card">
+      <h2 class="card-title">Change Password</h2>
+      <form method="POST"
+            action="{{ url_for(
+                      'auth.change_password') }}"
+            class="auth-form">
+        <div class="form-group">
+          <label class="form-label">
+            Current Password
+          </label>
+          <input type="password"
+                 name="current_password"
+                 class="form-input"
+                 placeholder="Current password"
+                 required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            New Password
+          </label>
+          <input type="password"
+                 name="new_password"
+                 class="form-input"
+                 placeholder="Min 8 chars,
+                   uppercase &amp; number"
+                 required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            Confirm New Password
+          </label>
+          <input type="password"
+                 name="confirm_password"
+                 class="form-input"
+                 placeholder="Re-enter password"
+                 required>
+        </div>
+        <button type="submit" class="btn-auth">
+          Update Password
+        </button>
+      </form>
+    </div>
+
+    <!-- Prediction history -->
+    <div class="profile-card">
+      <h2 class="card-title">
+        Recent Predictions
+      </h2>
+      {% if history %}
+      <div class="history-list">
+        {% for row in history %}
+        <div class="history-item">
+          <div class="history-top">
+            <span class="history-stream">
+              {{ row['stream'] }}
+            </span>
+            <span class="history-date">
+              {{ row['created_at'][:10] }}
+            </span>
+          </div>
+          <div class="history-detail">
+            Z={{ row['z_score'] }} ·
+            Rs.{{ "{:,}".format(
+                  row['annual_income']) }} ·
+            {{ row['district'] }}
+          </div>
+          <span class="badge-eligible">
+            {{ row['eligible_count'] }} eligible
+          </span>
+        </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <p class="empty-state">
+        No predictions yet.
+        <a href="{{ url_for('welcome') }}"
+           class="form-link">
+          Check eligibility →
+        </a>
+      </p>
+      {% endif %}
+    </div>
+
+  </div>
+
+  <div class="profile-actions">
+    <a href="{{ url_for('welcome') }}"
+       class="btn-auth">
+      Check Eligibility
+    </a>
+    <a href="{{ url_for('auth.logout') }}"
+       class="btn-secondary">
+      Log Out
+    </a>
+  </div>
+
+</div>
+{% endblock %}

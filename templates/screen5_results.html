@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}Your Results{% endblock %}
+
+{% block content %}
+<div class="results-page">
+
+  <!-- Summary cards -->
+  <div class="stat-row">
+    <div class="stat-card stat-blue">
+      <div class="stat-num">{{ eligible|length }}</div>
+      <div class="stat-lbl">Eligible Schemes</div>
+    </div>
+    <div class="stat-card stat-green">
+      <div class="stat-num">{{ high_match|length }}</div>
+      <div class="stat-lbl">High Match (&gt;70%)</div>
+    </div>
+    <div class="stat-card stat-gray">
+      <div class="stat-num">{{ results|length }}</div>
+      <div class="stat-lbl">Schemes Checked</div>
+    </div>
+  </div>
+
+  <!-- Profile summary -->
+  {% if profile.z_score %}
+  <div class="profile-summary">
+    <strong>Profile checked:</strong>
+    Z-score {{ profile.z_score }} &nbsp;·&nbsp;
+    {{ profile.stream }} &nbsp;·&nbsp;
+    Rs.{{ "{:,}".format(profile.income) }}
+    &nbsp;·&nbsp; {{ profile.district }}
+  </div>
+  {% endif %}
+
+  <!-- Result notice -->
+  {% if eligible %}
+  <div class="result-notice notice-success">
+    🎉 {{ eligible|length }} scholarship
+    {{ 'schemes match' if eligible|length > 1
+       else 'scheme matches' }}
+    your profile! Apply before the deadlines.
+  </div>
+  {% else %}
+  <div class="result-notice notice-info">
+    ℹ️ No schemes fully matched your profile.
+    Review below to see what to improve.
+  </div>
+  {% endif %}
+
+  <h2 class="section-title">
+    Ranked Scholarship Results
+  </h2>
+
+  <!-- Result cards -->
+  {% for r in results %}
+  <div class="result-card
+    {{ 'card-eligible' if r.eligible
+       else 'card-ineligible' }}">
+
+    <div class="card-left-bar"
+         style="background:
+           {{ '#2E7D52' if r.eligible
+              else '#CCCCCC' }}">
+    </div>
+
+    <div class="card-body">
+      <div class="card-top">
+        <div>
+          <span class="scheme-name">
+            {{ r.scheme_name }}
+          </span>
+          <span class="scheme-body">
+            {{ r.awarding_body }}
+          </span>
+        </div>
+        <div class="prob-badge
+          {{ 'prob-high'
+             if r.probability_pct >= 70
+             else 'prob-mid'
+             if r.probability_pct >= 40
+             else 'prob-low' }}">
+          {{ r.probability_pct }}%
+        </div>
+      </div>
+
+      <div class="card-tags">
+        {% if r.eligible %}
+        <span class="tag tag-green">✓ Eligible</span>
+        {% else %}
+        <span class="tag tag-red">
+          ✗ Not Eligible
+        </span>
+        {% endif %}
+        <span class="tag tag-blue">
+          Rs.{{ "{:,}".format(r.monthly_amount) }}/mo
+        </span>
+        <span class="tag tag-amber">
+          Deadline: {{ r.deadline }}
+        </span>
+      </div>
+
+      <div class="prob-bar-track">
+        <div class="prob-bar-fill
+          {{ 'bar-green' if r.eligible
+             else 'bar-gray' }}"
+             style="width:0%"
+             data-target="{{ r.probability_pct }}">
+        </div>
+      </div>
+
+      <p class="card-explanation">
+        {{ r.explanation }}
+      </p>
+
+      {% if r.eligible %}
+      <details class="guide-details">
+        <summary>
+          📋 View Document Checklist
+          &amp; Application Steps
+        </summary>
+        <div class="guide-body">
+          <h4>Required Documents</h4>
+          <ul class="doc-list">
+            {% for doc in r.documents %}
+            <li>{{ doc }}</li>
+            {% endfor %}
+          </ul>
+          <h4>Application Steps</h4>
+          <ol class="steps-list">
+            <li>Gather all required documents above.</li>
+            <li>
+              Visit the official website of
+              <strong>{{ r.awarding_body }}</strong>
+              and download the application form.
+            </li>
+            <li>
+              Complete the form accurately —
+              all fields must match your documents.
+            </li>
+            <li>
+              Submit before
+              <strong>{{ r.deadline }}</strong>
+              of the current year.
+            </li>
+            <li>
+              Keep a copy of your submission
+              and note the reference number.
+            </li>
+          </ol>
+        </div>
+      </details>
+      {% endif %}
+
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="results-footer">
+    <a href="{{ url_for('reset') }}"
+       class="btn-primary">
+      ← Check Another Profile
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+window.addEventListener('load', () => {
+  document.querySelectorAll('.prob-bar-fill')
+    .forEach(bar => {
+      const target = bar.getAttribute('data-target');
+      setTimeout(() => {
+        bar.style.width = target + '%';
+      }, 200);
+    });
+});
+</script>
+{% endblock %}

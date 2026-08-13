@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+
+  <div class="auth-side auth-side-left">
+    <div class="auth-side-content">
+      <div class="side-icon">✨</div>
+      <h2>Join ScholarshipAI</h2>
+      <p>
+        Create a free account to check eligibility
+        for Sri Lankan university scholarships.
+      </p>
+      <ul class="side-list">
+        <li>✓ Instant eligibility results</li>
+        <li>✓ Save your predictions</li>
+        <li>✓ Track application deadlines</li>
+        <li>✓ 100% free forever</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="auth-card">
+    <div class="auth-header">
+      <div class="auth-logo">✨</div>
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-sub">
+        Join thousands of Sri Lankan students
+      </p>
+    </div>
+
+    <form method="POST"
+          action="{{ url_for('auth.register') }}"
+          class="auth-form">
+
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text"
+                 name="full_name"
+                 value="{{ form.get('full_name','') }}"
+                 placeholder="e.g. Ashan Perera"
+                 class="form-input
+                   {{ 'is-error'
+                      if errors.get('full_name') }}"
+                 required>
+        </div>
+        {% if errors.get('full_name') %}
+        <span class="field-error">
+          ⚠ {{ errors.full_name }}
+        </span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          Email Address
+        </label>
+        <div class="input-wrap">
+          <span class="input-icon">✉️</span>
+          <input type="email"
+                 name="email"
+                 value="{{ form.get('email','') }}"
+                 placeholder="you@example.com"
+                 class="form-input
+                   {{ 'is-error'
+                      if errors.get('email') }}"
+                 required>
+        </div>
+        {% if errors.get('email') %}
+        <span class="field-error">
+          ⚠ {{ errors.email }}
+        </span>
+        {% endif %}
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password"
+                 id="password"
+                 name="password"
+                 placeholder="Min 8 chars,
+                   uppercase &amp; number"
+                 class="form-input
+                   {{ 'is-error'
+                      if errors.get('password') }}"
+                 required>
+          <button type="button"
+                  class="pwd-toggle"
+                  onclick="togglePwd('password',
+                            this)">
+            👁️
+          </button>
+        </div>
+        {% if errors.get('password') %}
+        <span class="field-error">
+          ⚠ {{ errors.password }}
+        </span>
+        {% endif %}
+        <div class="strength-wrap">
+          <div class="strength-bar">
+            <div class="strength-fill"
+                 id="strength-fill"></div>
+          </div>
+          <span class="strength-label"
+                id="strength-label">
+            Enter a password
+          </span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          Confirm Password
+        </label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password"
+                 id="confirm"
+                 name="confirm_password"
+                 placeholder="Re-enter password"
+                 class="form-input
+                   {{ 'is-error'
+                      if errors.get(
+                         'confirm_password') }}"
+                 required>
+        </div>
+        {% if errors.get('confirm_password') %}
+        <span class="field-error">
+          ⚠ {{ errors.confirm_password }}
+        </span>
+        {% endif %}
+        <span class="match-msg"
+              id="match-msg"></span>
+      </div>
+
+      <button type="submit" class="btn-auth">
+        Create Account →
+      </button>
+
+    </form>
+
+    <p class="auth-switch">
+      Already have an account?
+      <a href="{{ url_for('auth.login') }}"
+         class="form-link-strong">
+        Log in here →
+      </a>
+    </p>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePwd(id, btn) {
+  const inp = document.getElementById(id);
+  inp.type  = inp.type==='text'
+              ?'password':'text';
+  btn.textContent = inp.type==='password'
+                    ?'👁️':'🙈';
+}
+const pwd     = document.getElementById('password');
+const confirm = document.getElementById('confirm');
+const fill    = document.getElementById('strength-fill');
+const lbl     = document.getElementById('strength-label');
+const matchEl = document.getElementById('match-msg');
+const colors  = ['#E74C3C','#E67E22',
+                  '#F1C40F','#2ECC71'];
+const labels  = ['Too weak','Fair','Good','Strong'];
+
+function strength(p) {
+  let s = 0;
+  if (p.length >= 8)          s++;
+  if (/[A-Z]/.test(p))       s++;
+  if (/[a-z]/.test(p))       s++;
+  if (/\d/.test(p))          s++;
+  return Math.min(s, 4);
+}
+pwd.addEventListener('input', function() {
+  const s   = strength(this.value);
+  const pct = s === 0 ? 0 : (s/4)*100;
+  fill.style.width      = pct + '%';
+  fill.style.background = colors[Math.max(s-1,0)];
+  lbl.textContent = s===0
+    ? 'Enter a password' : labels[s-1];
+  checkMatch();
+});
+confirm.addEventListener('input', checkMatch);
+function checkMatch() {
+  if (!confirm.value) {
+    matchEl.textContent = ''; return;
+  }
+  if (confirm.value === pwd.value) {
+    matchEl.textContent = '✓ Passwords match';
+    matchEl.style.color = '#2E7D52';
+  } else {
+    matchEl.textContent = '✗ Do not match';
+    matchEl.style.color = '#A53030';
+  }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Academic Results{% endblock %}
+
+{% block content %}
+<div class="form-page">
+
+  <div class="progress-wrap">
+    <div class="progress-bar">
+      <div class="progress-fill"
+           style="width:33%"></div>
+    </div>
+    <span class="progress-label">
+      Step 1 of 3 — Academic Results
+    </span>
+  </div>
+
+  <div class="form-card">
+    <h2 class="form-title">📚 Academic Results</h2>
+    <p class="form-hint">
+      Enter your A/L examination results.
+    </p>
+
+    {% with messages =
+       get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+      <div class="alert alert-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="POST"
+          action="{{ url_for('academic') }}"
+          novalidate>
+
+      <div class="form-group">
+        <label for="z_score">
+          Z-Score
+          <span class="required">*</span>
+          <span class="hint">Range: 0.50 – 2.80</span>
+        </label>
+        <input type="number"
+               id="z_score"
+               name="z_score"
+               step="0.0001"
+               min="0.5" max="2.8"
+               value="{{ form.get('z_score','') }}"
+               placeholder="e.g. 1.8542"
+               class="form-input"
+               required>
+      </div>
+
+      <div class="form-group">
+        <label for="stream">
+          A/L Stream
+          <span class="required">*</span>
+        </label>
+        <select id="stream"
+                name="stream"
+                class="form-input"
+                required>
+          <option value="" disabled selected>
+            — Select your stream —
+          </option>
+          {% for s in streams %}
+          <option value="{{ s }}"
+            {{ 'selected' if form.get('stream')==s }}>
+            {{ s }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>
+          Subject Grades (3 subjects)
+          <span class="required">*</span>
+        </label>
+        <div class="grade-grid">
+          {% for n in ['grade1','grade2','grade3'] %}
+          <div class="grade-item">
+            <label class="grade-label">
+              Subject {{ loop.index }}
+            </label>
+            <select name="{{ n }}"
+                    class="grade-select">
+              {% for g in ['A','B','C','S','F'] %}
+              <option value="{{ g }}"
+                {{ 'selected'
+                   if form.get(n)==g }}>
+                {{ g }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a href="{{ url_for('welcome') }}"
+           class="btn-secondary">← Back</a>
+        <button type="submit"
+                class="btn-primary">
+          Next →
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static',
+               filename='js/main.js') }}"></script>
+{% endblock %}

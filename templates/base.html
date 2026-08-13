@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+  <title>
+    {% block title %}Scholarship Predictor{% endblock %}
+    | Esoft
+  </title>
+  <link rel="stylesheet"
+        href="{{ url_for('static',
+               filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-inner">
+      <a href="{{ url_for('welcome') }}" class="nav-brand">
+        <span class="nav-icon">🎓</span>
+        <span class="nav-title">ScholarshipAI</span>
+      </a>
+      <div class="nav-links">
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('welcome') }}"
+             class="nav-link">Home</a>
+          <a href="{{ url_for('auth.profile') }}"
+             class="nav-link">
+            <span class="avatar">
+              {{ current_user.full_name[0].upper() }}
+            </span>
+            {{ current_user.full_name.split()[0] }}
+          </a>
+          <a href="{{ url_for('auth.logout') }}"
+             class="nav-link nav-outline">Log Out</a>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}"
+             class="nav-link">Log In</a>
+          <a href="{{ url_for('auth.register') }}"
+             class="nav-link nav-filled">Sign Up</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash messages -->
+  {% with messages =
+     get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+      {% for cat, msg in messages %}
+      <div class="flash flash-{{ cat }}">
+        <span>{{ msg }}</span>
+        <button class="flash-close"
+                onclick="this.parentElement.remove()">
+          ×
+        </button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- Page content -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>
+      © {{ current_year }}
+      University Scholarship Eligibility Predictor
+      &nbsp;|&nbsp; Esoft Metro Campus
+      &nbsp;|&nbsp; CS6P05ES
+    </p>
+  </footer>
+
+  <script src="{{ url_for('static',
+                 filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

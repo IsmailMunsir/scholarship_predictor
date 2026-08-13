@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+
+{% block content %}
+<div class="welcome-page">
+  <div class="welcome-card">
+
+    <div class="welcome-icon">🎓</div>
+    <h1 class="welcome-title">Find Your Scholarships</h1>
+    <p class="welcome-sub">
+      AI-powered eligibility prediction for
+      Sri Lankan A/L university students
+    </p>
+
+    <div class="info-grid">
+      <div class="info-box info-blue">
+        <h3>📋 What you enter</h3>
+        <ul>
+          <li>Z-score</li>
+          <li>A/L Stream &amp; Grades</li>
+          <li>Annual Family Income</li>
+          <li>Home District</li>
+        </ul>
+      </div>
+      <div class="info-box info-green">
+        <h3>✅ What you receive</h3>
+        <ul>
+          <li>Ranked scholarship matches</li>
+          <li>Probability scores</li>
+          <li>Document checklists</li>
+          <li>Step-by-step guidance</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat">
+        <span class="stat-num">6</span>
+        <span class="stat-lbl">Schemes Checked</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">25</span>
+        <span class="stat-lbl">Districts Covered</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">&lt;3s</span>
+        <span class="stat-lbl">Response Time</span>
+      </div>
+    </div>
+
+    <p class="no-login">
+      ✓ No login required &nbsp;·&nbsp;
+      Completes in under 2 minutes
+    </p>
+
+    <a href="{{ url_for('auth.login') }}"
+   class="btn-primary btn-large">
+  Get Started →
+</a>
+
+  </div>
+</div>
+{% endblock %}

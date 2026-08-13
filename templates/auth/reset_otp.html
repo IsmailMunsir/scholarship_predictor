@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Reset Code{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+
+{% block content %}
+<div class="auth-container auth-single">
+  <div class="auth-card">
+
+    <div class="auth-header">
+      <div class="auth-logo">📧</div>
+      <h1 class="auth-title">Enter Reset Code</h1>
+      <p class="auth-sub">
+        Code sent to <strong>{{ email }}</strong>
+      </p>
+    </div>
+
+    {% if error %}
+    <div class="form-alert alert-error">
+      ⚠️ {{ error }}
+    </div>
+    {% endif %}
+
+    {% if demo_otp %}
+    <div class="form-alert alert-info">
+      🔑 <strong>Demo OTP:</strong> {{ demo_otp }}
+    </div>
+    {% endif %}
+
+    <form method="POST"
+          action="{{ url_for('auth.reset_otp') }}"
+          class="auth-form">
+      <div class="form-group">
+        <label class="form-label">6-Digit Code</label>
+        <div class="otp-grid">
+          {% for i in range(6) %}
+          <input type="text"
+                 maxlength="1"
+                 class="otp-box"
+                 pattern="[0-9]"
+                 inputmode="numeric">
+          {% endfor %}
+          <input type="hidden"
+                 id="otp-val" name="otp">
+        </div>
+      </div>
+      <button type="submit" class="btn-auth">
+        Verify Code →
+      </button>
+    </form>
+
+    <p class="auth-switch">
+      <a href="{{ url_for('auth.forgot_password') }}"
+         class="form-link">
+        ← Try a different email
+      </a>
+    </p>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const boxes = document.querySelectorAll('.otp-box');
+const hidden = document.getElementById('otp-val');
+boxes.forEach((box,i) => {
+  box.addEventListener('input', e => {
+    e.target.value =
+      e.target.value.replace(/\D/g,'');
+    if (e.target.value && i<boxes.length-1)
+      boxes[i+1].focus();
+    hidden.value =
+      Array.from(boxes).map(b=>b.value).join('');
+  });
+  box.addEventListener('keydown', e => {
+    if (e.key==='Backspace' &&
+        !e.target.value && i>0)
+      boxes[i-1].focus();
+  });
+});
+boxes[0]?.focus();
+</script>
+{% endblock %}
