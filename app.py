@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 
 from database import init_db, get_db, execute
 from auth import auth_bp, bcrypt, login_manager
+from admin import admin_bp
 from scholarship_predictor import (
     SCHEMES, DISTRICT_FACTORS,
     STREAM_CODES, predict_for_student
@@ -44,6 +45,7 @@ def create_app():
 
     # Register auth blueprint
     app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(admin_bp, url_prefix="/admin")
 
     # Init database
     with app.app_context():
@@ -271,6 +273,14 @@ def api_history():
 
 
 # ── Error pages ──────────────────────────────────────────────────
+
+@app.route("/debug-user")
+def debug_user():
+    from flask_login import current_user
+    if current_user.is_authenticated:
+        return f"Logged in as: {current_user.email} | is_admin: {current_user.is_admin}"
+    return "Not logged in"
+
 @app.errorhandler(403)
 def forbidden(e):
     return render_template("errors/403.html"), 403
