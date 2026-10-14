@@ -117,18 +117,24 @@ def family():
     if request.method == "POST":
         try:
             inc = int(request.form.get("annual_income", "0"))
-            if inc < 0:
+            if not (0 <= inc <= 5_000_000):
                 raise ValueError
         except ValueError:
-            flash("Please enter a valid income amount.", "error")
+            flash("Income must be between Rs. 0 and Rs. 5,000,000.", "error")
             return render_template(
                 "screen3_family.html",
                 districts=sorted(DISTRICT_FACTORS.keys()),
                 form=request.form)
 
+        district = request.form.get("district", "Colombo")
+        if district not in DISTRICT_FACTORS:
+            flash("Please select a valid district.", "error")
+            return render_template(
+                "screen3_family.html",
+                districts=sorted(DISTRICT_FACTORS.keys()),
+                form=request.form)
         session["annual_income"] = inc
-        session["district"]      = request.form.get(
-            "district", "Colombo")
+        session["district"]      = district
         return redirect(url_for("processing"))
 
     return render_template(
@@ -149,6 +155,7 @@ def processing():
 
 # ── AJAX Predict endpoint ────────────────────────────────────────
 @app.route("/predict", methods=["POST"])
+@login_required
 def predict():
     try:
         profile = {
@@ -264,6 +271,11 @@ def api_history():
 
 
 # ── Error pages ──────────────────────────────────────────────────
+@app.errorhandler(403)
+def forbidden(e):
+    return render_template("errors/403.html"), 403
+
+
 @app.errorhandler(404)
 def not_found(e):
     return render_template("errors/404.html"), 404
