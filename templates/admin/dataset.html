@@ -1,0 +1,564 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dataset Editor — ScholarPredict Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+<style>
+:root{--purple:#7c3aed;--purple-l:#ede9fe;--purple-m:#a78bfa;--text:#1e1b4b;--muted:#6b7280;--border:#e5e7eb;--bg:#f8fafc;--white:#fff;--green:#10b981;--red:#ef4444;--amber:#f59e0b;--r:12px;--sw:250px;--sc:64px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f8fafc;margin:0;color:#1e1b4b;font-size:14px}
+
+/* sidebar — matches dashboard */
+.sidebar{width:250px;background:#fff;border-right:1px solid #e5e7eb;position:fixed;top:0;left:0;height:100vh;z-index:200;display:flex;flex-direction:column;overflow:hidden;}
+.sb-brand{display:flex;align-items:center;gap:10px;padding:18px 14px 14px;border-bottom:1px solid #e5e7eb;min-height:64px;}
+.sb-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0;}
+.sb-brand-text b{display:block;font-weight:700;font-size:15px;color:#1e1b4b;}
+.sb-brand-text small{font-size:11px;color:#6b7280;}
+.sb-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 8px;}
+.sb-nav::-webkit-scrollbar{width:3px;}
+.sb-nav::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:2px;}
+.nav-lbl{font-size:10px;font-weight:600;letter-spacing:.06em;color:#6b7280;padding:8px 8px 4px;text-transform:uppercase;}
+
+
+
+
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:#6b7280;text-decoration:none;font-size:13.5px;font-weight:500;transition:background .15s,color .15s;margin-bottom:2px;}
+.sb-item i{font-size:16px;flex-shrink:0;width:20px;text-align:center;}
+.sb-item:hover{background:#ede9fe;color:#7c3aed;}
+.sb-item.active{background:#ede9fe;color:#7c3aed;font-weight:600;}
+.sb-foot{padding:12px 10px;border-top:1px solid #e5e7eb;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.sb-footer{padding:12px 10px;border-top:1px solid #e5e7eb;display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.sb-av{width:32px;height:32px;border-radius:8px;flex-shrink:0;background:#7c3aed;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
+.sb-foot-txt b{display:block;font-size:12px;font-weight:600;}
+.sb-foot-txt small{font-size:10.5px;color:#6b7280;}
+
+/* main */
+.main{margin-left:250px;min-height:100vh;padding-top:64px;width:calc(100% - 250px);overflow-x:auto;}
+
+
+/* topbar */
+.topbar{background:var(--white);border-bottom:1px solid var(--border);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:fixed;top:0;left:250px;right:0;z-index:100;top:0;z-index:50padding-left:16px;}
+.bc{display:flex;align-items:center;gap:6px;font-size:13px}
+.bc a{color:var(--muted);text-decoration:none}
+.bc a:hover{color:var(--purple)}
+.bc .sep{color:var(--border)}
+.bc .cur{color:var(--text);font-weight:600}
+.top-actions{display:flex;align-items:center;gap:8px}
+.btn-i{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--white);display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;transition:all .15s;text-decoration:none}
+.btn-i:hover{background:var(--purple-l);color:var(--purple);border-color:var(--purple-m)}
+
+/* content */
+.content{padding:24px;flex:1overflow-x:auto;}
+
+/* stat cards */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:900px){.stats{grid-template-columns:repeat(2,1fr)}}
+.sc{background:var(--white);border-radius:var(--r);border:1px solid var(--border);padding:16px 18px;display:flex;align-items:center;gap:14px;box-shadow:0 1px 4px rgba(124,58,237,.07),0 4px 16px rgba(0,0,0,.05)}
+.sc-ico{width:42px;height:42px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px}
+.ico-p{background:var(--purple-l);color:var(--purple)}
+.ico-b{background:#dbeafe;color:#2563eb}
+.ico-g{background:#d1fae5;color:#059669}
+.ico-o{background:#fef3c7;color:#d97706}
+.sc-v{font-size:22px;font-weight:700;line-height:1}
+.sc-l{font-size:11.5px;color:var(--muted);margin-top:3px}
+
+/* card */
+.card{background:var(--white);border-radius:var(--r);border:1px solid var(--border);box-shadow:0 1px 4px rgba(124,58,237,.07),0 4px 16px rgba(0,0,0,.05);overflow:hidden}
+.card-hd{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.card-ttl{font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.card-ttl i{color:var(--purple)}
+
+/* filter bar */
+.fbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:14px 20px;border-bottom:1px solid var(--border);background:#fafbff}
+.sw{position:relative;flex:1;min-width:200px}
+.sw i{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none}
+.fbar input,.fbar select{height:36px;border:1px solid var(--border);border-radius:8px;padding:0 12px;font-size:13px;font-family:inherit;background:var(--white);color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s}
+.fbar input{padding-left:34px;width:100%}
+.fbar input:focus,.fbar select:focus{border-color:var(--purple-m);box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.fbar select{min-width:130px}
+
+/* table */
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.dt{width:100%;border-collapse:collapse;min-width:900px}
+.dt thead tr{background:#f5f3ff}
+.dt th{padding:10px 14px;font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;border-bottom:2px solid var(--purple-l);cursor:pointer;user-select:none}
+.dt th:hover{color:var(--purple);background:var(--purple-l)}
+.dt th.sorted{color:var(--purple)}
+.dt th .si-ico{margin-left:4px;opacity:.4;font-size:10px}
+.dt th.sorted .si-ico{opacity:1}
+.dt td{padding:10px 14px;font-size:13px;border-bottom:1px solid #f1f0f9;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis}
+.dt tr:hover td{background:#faf8ff}
+.dt tr:last-child td{border-bottom:none}
+.bs{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11.5px;font-weight:600}
+.bs.bio{background:#d1fae5;color:#065f46}
+.bs.phy{background:#dbeafe;color:#1d4ed8}
+.bs.com{background:#fef3c7;color:#92400e}
+.bs.art{background:#fce7f3;color:#9d174d}
+.bs.tec{background:#e0f2fe;color:#075985}
+.ra{display:flex;gap:6px}
+.ba{width:28px;height:28px;border-radius:6px;border:none;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:all .15s}
+.ba.ed{background:#ede9fe;color:var(--purple)}
+.ba.ed:hover{background:var(--purple);color:#fff}
+.ba.dl{background:#fee2e2;color:var(--red)}
+.ba.dl:hover{background:var(--red);color:#fff}
+
+/* pagination */
+.pgbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid #e5e7eb;flex-wrap:wrap;gap:10px}
+.pg-info{font-size:12.5px;color:var(--muted)}
+.pg-info strong{color:var(--text)}
+.pg-ctrl{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.page-btn{min-width:32px;height:32px;padding:0 8px;border-radius:7px;border:1px solid var(--border);background:var(--white);font-size:13px;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;color:var(--text);text-decoration:none}
+.page-btn:hover:not([disabled]):not(.ellipsis){background:var(--purple-l);color:var(--purple);border-color:var(--purple-m)}
+.page-btn.active{background:var(--purple);color:#fff;border-color:var(--purple);font-weight:600}
+.page-btn[disabled]{opacity:.4;cursor:not-allowed;pointer-events:none}
+.page-btn.ellipsis{border:none;background:none;cursor:default;color:var(--muted)}
+.rpp{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.rpp select{height:30px;border:1px solid var(--border);border-radius:6px;padding:0 8px;font-size:12.5px;background:var(--white);font-family:inherit;outline:none}
+
+/* buttons */
+.btn-p{height:36px;padding:0 14px;border-radius:8px;background:var(--purple);color:#fff;border:none;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s;text-decoration:none}
+.btn-p:hover{background:#6d28d9}
+.btn-o{height:36px;padding:0 14px;border-radius:8px;border:1px solid var(--border);background:var(--white);color:var(--text);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .15s}
+.btn-o:hover{background:var(--purple-l);color:var(--purple);border-color:var(--purple-m)}
+.btn-g{height:36px;padding:0 14px;border-radius:8px;background:var(--green);color:#fff;border:none;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .15s}
+.btn-g:hover{background:#059669}
+
+/* modal */
+.mo{position:fixed;inset:0;background:rgba(15,13,40,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
+.mo.show{opacity:1;pointer-events:all}
+.mb{background:var(--white);border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.2);width:100%;max-width:680px;max-height:90vh;display:flex;flex-direction:column;transform:translateY(16px);transition:transform .2s}
+.mo.show .mb{transform:translateY(0)}
+.mh{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.mh h5{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.mh h5 i{color:var(--purple)}
+.mc{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--muted);transition:all .15s}
+.mc:hover{background:#fee2e2;color:var(--red);border-color:#fecaca}
+.mbody{padding:20px 24px;overflow-y:auto}
+.mfoot{padding:16px 24px;border-top:1px solid #e5e7eb;display:flex;gap:8px;justify-content:flex-end}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:540px){.fg{grid-template-columns:1fr}}
+.fgrp label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+.fgrp input,.fgrp select{width:100%;height:38px;border:1px solid var(--border);border-radius:8px;padding:0 12px;font-size:13px;font-family:inherit;background:var(--white);color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s}
+.fgrp input:focus,.fgrp select:focus{border-color:var(--purple-m);box-shadow:0 0 0 3px rgba(124,58,237,.1)}
+.fgrp input.inv{border-color:var(--red)}
+.ferr{font-size:11.5px;color:var(--red);margin-top:3px;display:none}
+.ferr.show{display:block}
+.del-ico{width:56px;height:56px;border-radius:50%;background:#fee2e2;color:var(--red);display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 12px}
+
+/* toast */
+.tc{position:fixed;top:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{min-width:260px;max-width:380px;border-radius:10px;padding:12px 16px;display:flex;align-items:flex-start;gap:10px;box-shadow:0 4px 20px rgba(0,0,0,.15);font-size:13.5px;animation:sir .3s ease;background:var(--white);border:1px solid var(--border)}
+.toast.s{border-left:4px solid var(--green)}
+.toast.e{border-left:4px solid var(--red)}
+.toast.i{border-left:4px solid #3b82f6}
+.toast i{font-size:18px;margin-top:1px;flex-shrink:0}
+.toast.s i{color:var(--green)}
+.toast.e i{color:var(--red)}
+.toast.i i{color:#3b82f6}
+.t-txt strong{display:block;font-weight:600;font-size:13px;margin-bottom:1px}
+.t-txt span{font-size:12.5px;color:var(--muted)}
+@keyframes sir{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* loading */
+.lo{position:fixed;inset:0;background:rgba(255,255,255,.8);z-index:300;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.lo.show{opacity:1;pointer-events:all}
+.spin{width:40px;height:40px;border:3px solid var(--purple-l);border-top-color:var(--purple);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:48px 24px}
+.empty i{font-size:40px;color:var(--border);margin-bottom:12px;display:block}
+.empty p{color:var(--muted);font-size:14px}
+
+
+  /* removed */
+  /* removed */
+  .content{padding:16pxoverflow-x:auto;}
+}
+</style>
+</head>
+<body>
+
+<aside class="sidebar" id="sb">
+  <div class="sb-brand">
+    <div class="sb-logo"><i class="bi bi-mortarboard-fill"></i></div>
+    <div class="sb-brand-text"><b>ScholarPredict</b><small>Admin Portal</small></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-lbl">Dashboard</div>
+    <a href="/admin" class="sb-item"><i class="bi bi-grid-1x2-fill"></i><span class="lbl">Overview</span></a>
+    <a href="/admin#analytics" class="sb-item"><i class="bi bi-bar-chart-fill"></i><span class="lbl">Analytics</span></a>
+    <div class="nav-lbl" style="margin-top:8px">Records</div>
+    <a href="/admin#predictions" class="sb-item"><i class="bi bi-clipboard-data-fill"></i><span class="lbl">Predictions</span></a>
+    <a href="/admin#users" class="sb-item"><i class="bi bi-people-fill"></i><span class="lbl">Users</span></a>
+    <a href="/admin/dataset" class="sb-item active"><i class="bi bi-table"></i><span class="lbl">Dataset Editor</span></a>
+    <div class="nav-lbl" style="margin-top:8px">System</div>
+    <a href="/admin#models" class="sb-item"><i class="bi bi-cpu-fill"></i><span class="lbl">ML Models</span></a>
+    <a href="/admin/export/predictions" class="sb-item"><i class="bi bi-download"></i><span class="lbl">Export Predictions</span></a>
+    <a href="/admin/export/users" class="sb-item"><i class="bi bi-download"></i><span class="lbl">Export Users</span></a>
+    <div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px">
+      <a href="/" class="sb-item"><i class="bi bi-arrow-left-circle"></i><span class="lbl">Back to App</span></a>
+      <a href="/admin/logout" class="sb-item"><i class="bi bi-box-arrow-right"></i><span class="lbl">Logout</span></a>
+    </div>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-av">A</div>
+    <div class="sb-foot-txt"><b>Administrator</b><small>admin123@gmail.com</small></div>
+  </div>
+</aside>
+
+<div class="main" id="main">
+  <div class="topbar">
+    <div class="bc">
+      <a href="/admin"><i class="bi bi-house-fill"></i> Dashboard</a>
+      <span class="sep">›</span><span class="cur">Dataset Editor</span>
+    </div>
+    <div class="top-actions">
+      <button class="btn-o" onclick="exportFiltered()"><i class="bi bi-download"></i> Export CSV</button>
+      <button class="btn-p" onclick="openAdd()"><i class="bi bi-plus-lg"></i> Add Record</button>
+      <a href="/admin" class="btn-i" title="Dashboard"><i class="bi bi-grid"></i></a>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="stats">
+      <div class="sc"><div class="sc-ico ico-p"><i class="bi bi-database-fill"></i></div><div><div class="sc-v" id="sTotalRows">{{ total_rows }}</div><div class="sc-l">Total Records</div></div></div>
+      <div class="sc"><div class="sc-ico ico-b"><i class="bi bi-funnel-fill"></i></div><div><div class="sc-v" id="sFiltered">{{ filtered_count }}</div><div class="sc-l">Filtered Results</div></div></div>
+      <div class="sc"><div class="sc-ico ico-g"><i class="bi bi-layers-fill"></i></div><div><div class="sc-v">{{ headers|length }}</div><div class="sc-l">Columns</div></div></div>
+      <div class="sc"><div class="sc-ico ico-o"><i class="bi bi-file-earmark-text-fill"></i></div><div><div class="sc-v" id="sPage">{{ page }}</div><div class="sc-l">Current Page</div></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-ttl"><i class="bi bi-table"></i> Student Records <span id="filterBadge"></span></div>
+        <button class="btn-o" id="clearBtn" onclick="clearFilters()" style="display:none"><i class="bi bi-x-circle"></i> Clear Filters</button>
+      </div>
+
+      <div class="fbar">
+        <div class="sw">
+          <i class="bi bi-search"></i>
+          <input type="text" id="qInput" placeholder="Search by Student ID, district, name…" value="{{ search or '' }}" oninput="debouncedSearch()">
+        </div>
+        <select id="streamSel" onchange="doFilter()">
+          <option value="">All Streams</option>
+          <option value="Biological Science" {% if stream_filter=='Biological Science' %}selected{% endif %}>Biological Science</option>
+          <option value="Physical Science" {% if stream_filter=='Physical Science' %}selected{% endif %}>Physical Science</option>
+          <option value="Commerce" {% if stream_filter=='Commerce' %}selected{% endif %}>Commerce</option>
+          <option value="Arts" {% if stream_filter=='Arts' %}selected{% endif %}>Arts</option>
+          <option value="Technology" {% if stream_filter=='Technology' %}selected{% endif %}>Technology</option>
+        </select>
+        <select id="distSel" onchange="doFilter()">
+          <option value="">All Districts</option>
+          {% for d in districts %}<option value="{{ d }}" {% if district_filter==d %}selected{% endif %}>{{ d }}</option>{% endfor %}
+        </select>
+        <select id="zSel" onchange="doFilter()">
+          <option value="">All Z-Scores</option>
+          <option value="high" {% if zscore_filter=='high' %}selected{% endif %}>High ≥ 1.8</option>
+          <option value="mid" {% if zscore_filter=='mid' %}selected{% endif %}>Mid 1.0–1.79</option>
+          <option value="low" {% if zscore_filter=='low' %}selected{% endif %}>Low &lt; 1.0</option>
+        </select>
+        <select id="rppSel" onchange="doFilter(1)">
+          <option value="25" {% if per_page==25 %}selected{% endif %}>25 / page</option>
+          <option value="50" {% if per_page==50 %}selected{% endif %}>50 / page</option>
+          <option value="100" {% if per_page==100 %}selected{% endif %}>100 / page</option>
+        </select>
+      </div>
+
+      <div class="tw">
+        <table class="dt" id="dt">
+          <thead><tr>
+            <th style="width:46px;cursor:default">#</th>
+            {% for h in headers %}
+            <th onclick="doSort('{{ h }}')" id="th_{{ h|replace(' ','_') }}">{{ h }} <i class="bi bi-chevron-expand si-ico"></i></th>
+            {% endfor %}
+            <th style="width:76px;cursor:default">Actions</th>
+          </tr></thead>
+          <tbody id="tbody">
+            {% if rows %}{% for row in rows %}
+            <tr data-idx="{{ row._idx }}">
+              <td style="color:var(--muted);font-size:12px">{{ row._display_num }}</td>
+              {% for h in headers %}
+              <td title="{{ row[h] }}">
+                {% if h|lower == 'stream' %}
+                  {% set s = row[h]|lower %}
+                  {% if 'bio' in s %}<span class="bs bio">{{ row[h] }}</span>
+                  {% elif 'phy' in s %}<span class="bs phy">{{ row[h] }}</span>
+                  {% elif 'com' in s %}<span class="bs com">{{ row[h] }}</span>
+                  {% elif 'art' in s %}<span class="bs art">{{ row[h] }}</span>
+                  {% elif 'tec' in s %}<span class="bs tec">{{ row[h] }}</span>
+                  {% else %}<span class="bs phy">{{ row[h] }}</span>{% endif %}
+                {% else %}{{ row[h] }}{% endif %}
+              </td>
+              {% endfor %}
+              <td><div class="ra">
+                <button class="ba ed" onclick="editRow({{ row._idx }})" title="Edit"><i class="bi bi-pencil"></i></button>
+                <button class="ba dl" onclick="confirmDel({{ row._idx }},'{{ row[headers[0]] }}')" title="Delete"><i class="bi bi-trash"></i></button>
+              </div></td>
+            </tr>
+            {% endfor %}{% else %}
+            <tr><td colspan="{{ headers|length+2 }}"><div class="empty"><i class="bi bi-inbox"></i><p>No records match your filters.</p></div></td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pgbar">
+        <div class="pg-info" id="pgInfo">
+          Showing <strong>{{ ((page-1)*per_page)+1 if rows else 0 }}</strong>–<strong>{{ [page*per_page, filtered_count]|min }}</strong>
+          of <strong>{{ filtered_count }}</strong> records
+          {% if filtered_count < total_rows %}<span style="color:var(--purple);margin-left:4px">(filtered)</span>{% endif %}
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div class="rpp">Rows: <select onchange="document.getElementById('rppSel').value=this.value;doFilter(1)">
+            <option value="25" {% if per_page==25 %}selected{% endif %}>25</option>
+            <option value="50" {% if per_page==50 %}selected{% endif %}>50</option>
+            <option value="100" {% if per_page==100 %}selected{% endif %}>100</option>
+          </select></div>
+          <div class="pg-ctrl" id="pgCtrl">{{ pagination_html|safe }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="mo" id="editMo">
+  <div class="mb">
+    <div class="mh"><h5><i class="bi bi-pencil-square"></i> Edit Record</h5><button class="mc" onclick="closeMo('editMo')"><i class="bi bi-x"></i></button></div>
+    <div class="mbody"><div class="fg" id="editGrid"></div></div>
+    <div class="mfoot"><button class="btn-o" onclick="closeMo('editMo')">Cancel</button><button class="btn-p" onclick="saveEdit()"><i class="bi bi-check2"></i> Save</button></div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="mo" id="addMo">
+  <div class="mb">
+    <div class="mh"><h5><i class="bi bi-plus-circle"></i> Add New Record</h5><button class="mc" onclick="closeMo('addMo')"><i class="bi bi-x"></i></button></div>
+    <div class="mbody"><div class="fg" id="addGrid">
+      {% for h in headers %}
+      <div class="fgrp">
+        <label>{{ h }}</label>
+        <input type="text" id="a_{{ h|replace(' ','_') }}" placeholder="{{ h }}">
+        <div class="ferr" id="ae_{{ h|replace(' ','_') }}">This field is required</div>
+      </div>
+      {% endfor %}
+    </div></div>
+    <div class="mfoot"><button class="btn-o" onclick="closeMo('addMo')">Cancel</button><button class="btn-g" onclick="saveAdd()"><i class="bi bi-plus-lg"></i> Add Record</button></div>
+  </div>
+</div>
+
+<!-- DELETE MODAL -->
+<div class="mo" id="delMo">
+  <div class="mb" style="max-width:420px">
+    <div class="mh"><h5><i class="bi bi-exclamation-triangle" style="color:var(--red)"></i> Delete Record</h5><button class="mc" onclick="closeMo('delMo')"><i class="bi bi-x"></i></button></div>
+    <div class="mbody" style="text-align:center;padding:28px 24px">
+      <div class="del-ico"><i class="bi bi-trash3"></i></div>
+      <p style="font-size:15px;font-weight:600;margin-bottom:6px">Delete this record?</p>
+      <p style="color:var(--muted);font-size:13.5px">Student ID: <strong id="delId"></strong></p>
+      <p style="color:var(--muted);font-size:13px;margin-top:6px">This cannot be undone.</p>
+    </div>
+    <div class="mfoot"><button class="btn-o" onclick="closeMo('delMo')">Cancel</button><button class="btn-p" style="background:var(--red)" onclick="doDelete()"><i class="bi bi-trash"></i> Delete</button></div>
+  </div>
+</div>
+
+<div class="lo" id="lo"><div style="text-align:center"><div class="spin"></div><p style="margin-top:12px;font-size:13px;color:var(--muted)" id="loTxt">Loading…</p></div></div>
+<div class="tc" id="tc"></div>
+
+<script>
+const HDRS = {{ headers|tojson }};
+let editIdx=null, delIdx=null, sortF=null, sortD='asc', st=null;
+
+// Sidebar
+const sbEl=document.getElementById('sb'), mainEl=document.getElementById('main');
+document.getElementById('sbTog').addEventListener('click',()=>{
+  sbEl.classList.toggle('col'); mainEl.classList.toggle('col');
+  document.getElementById('sbIcon').className=sbEl.classList.contains('col')?'bi bi-chevron-right':'bi bi-chevron-left';
+});
+document.querySelectorAll('.si').forEach(a=>a.addEventListener('click',function(){
+  document.querySelectorAll('.si').forEach(x=>x.classList.remove('active'));
+  this.classList.add('active');
+}));
+
+// Search debounce
+function debouncedSearch(){clearTimeout(st);st=setTimeout(()=>doFilter(1),350)}
+
+// Filter & fetch
+function doFilter(page){
+  page=page||1;
+  const q=document.getElementById('qInput').value;
+  const stream=document.getElementById('streamSel').value;
+  const dist=document.getElementById('distSel').value;
+  const z=document.getElementById('zSel').value;
+  const rpp=document.getElementById('rppSel').value;
+  const p=new URLSearchParams({page,per_page:rpp});
+  if(q)p.set('q',q);if(stream)p.set('stream',stream);if(dist)p.set('district',dist);if(z)p.set('zscore',z);
+  if(sortF){p.set('sort',sortF);p.set('dir',sortD);}
+  showLo('Filtering…');
+  fetch('/admin/dataset/data?'+p).then(r=>r.json()).then(d=>{
+    hideLo();
+    renderRows(d.rows);
+    renderPg(d.page,d.total_pages,d.filtered_count,d.per_page);
+    document.getElementById('sFiltered').textContent=d.filtered_count.toLocaleString();
+    document.getElementById('sPage').textContent=d.page;
+    const hasF=q||stream||dist||z;
+    document.getElementById('clearBtn').style.display=hasF?'flex':'none';
+    const n=[q,stream,dist,z].filter(Boolean).length;
+    document.getElementById('filterBadge').innerHTML=n?`<span style="background:var(--purple);color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;font-weight:600;margin-left:6px">${n} filter${n>1?'s':''}</span>`:'';
+  }).catch(e=>{hideLo();toast('e','Load failed',e.message);});
+}
+
+function clearFilters(){
+  document.getElementById('qInput').value='';
+  document.getElementById('streamSel').value='';
+  document.getElementById('distSel').value='';
+  document.getElementById('zSel').value='';
+  sortF=null;sortD='asc';
+  document.querySelectorAll('.dt th').forEach(t=>{t.classList.remove('sorted');const i=t.querySelector('.si-ico');if(i)i.className='bi bi-chevron-expand si-ico';});
+  doFilter(1);
+}
+
+function doSort(f){
+  if(sortF===f)sortD=sortD==='asc'?'desc':'asc';else{sortF=f;sortD='asc';}
+  document.querySelectorAll('.dt th').forEach(t=>{t.classList.remove('sorted');const i=t.querySelector('.si-ico');if(i)i.className='bi bi-chevron-expand si-ico';});
+  const th=document.getElementById('th_'+f.replace(/ /g,'_'));
+  if(th){th.classList.add('sorted');const i=th.querySelector('.si-ico');if(i)i.className='bi bi-chevron-'+(sortD==='asc'?'up':'down')+' si-ico';}
+  doFilter(1);
+}
+
+function renderRows(rows){
+  const tb=document.getElementById('tbody');
+  if(!rows.length){
+    tb.innerHTML=`<tr><td colspan="${HDRS.length+2}"><div class="empty"><i class="bi bi-inbox"></i><p>No records match your filters.</p></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML=rows.map(r=>{
+    const cells=HDRS.map(h=>{
+      const v=r[h]!==undefined?String(r[h]):'';
+      if(h.toLowerCase()==='stream'){
+        const s=v.toLowerCase();
+        const cls=s.includes('bio')?'bio':s.includes('phy')?'phy':s.includes('com')?'com':s.includes('art')?'art':s.includes('tec')?'tec':'phy';
+        return `<td><span class="bs ${cls}">${esc(v)}</span></td>`;
+      }
+      return `<td title="${esc(v)}">${esc(v)}</td>`;
+    }).join('');
+    return `<tr data-idx="${r._idx}"><td style="color:var(--muted);font-size:12px">${r._display_num||''}</td>${cells}<td><div class="ra"><button class="ba ed" onclick="editRow(${r._idx})" title="Edit"><i class="bi bi-pencil"></i></button><button class="ba dl" onclick="confirmDel(${r._idx},'${esc(String(r[HDRS[0]]))}')" title="Delete"><i class="bi bi-trash"></i></button></div></td></tr>`;
+  }).join('');
+}
+
+function renderPg(page,total,count,rpp){
+  const s=(page-1)*rpp+1,e=Math.min(page*rpp,count);
+  document.getElementById('pgInfo').innerHTML=`Showing <strong>${count?s:0}</strong>–<strong>${e}</strong> of <strong>${count.toLocaleString()}</strong> records`;
+  const ctrl=document.getElementById('pgCtrl');
+  if(total<=1){ctrl.innerHTML='';return;}
+  const range=pgRange(page,total);
+  let h=`<button class="page-btn" onclick="doFilter(${page-1})" ${page<=1?'disabled':''}><i class="bi bi-chevron-left"></i></button>`;
+  range.forEach(p=>{
+    if(p==='...')h+=`<span class="page-btn ellipsis">…</span>`;
+    else h+=`<button class="page-btn ${p===page?'active':''}" onclick="doFilter(${p})">${p}</button>`;
+  });
+  h+=`<button class="page-btn" onclick="doFilter(${page+1})" ${page>=total?'disabled':''}><i class="bi bi-chevron-right"></i></button>`;
+  ctrl.innerHTML=h;
+}
+
+function pgRange(cur,tot){
+  if(tot<=7)return Array.from({length:tot},(_,i)=>i+1);
+  if(cur<=4)return[1,2,3,4,5,'...',tot];
+  if(cur>=tot-3)return[1,'...',tot-4,tot-3,tot-2,tot-1,tot];
+  return[1,'...',cur-1,cur,cur+1,'...',tot];
+}
+
+// Edit
+function editRow(idx){
+  editIdx=idx;showLo('Loading…');
+  fetch(`/admin/dataset/row/${idx}`).then(r=>r.json()).then(d=>{
+    hideLo();
+    if(d.error){toast('e','Error',d.error);return;}
+    document.getElementById('editGrid').innerHTML=HDRS.map(h=>`<div class="fgrp"><label>${h}</label><input type="text" id="e_${h.replace(/ /g,'_')}" value="${esc(String(d[h]||''))}"></div>`).join('');
+    openMo('editMo');
+  }).catch(e=>{hideLo();toast('e','Failed',e.message);});
+}
+function saveEdit(){
+  const data={};
+  HDRS.forEach(h=>{const el=document.getElementById('e_'+h.replace(/ /g,'_'));if(el)data[h]=el.value;});
+  showLo('Saving…');
+  fetch(`/admin/dataset/row/${editIdx}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+    .then(r=>r.json()).then(d=>{hideLo();if(d.success){closeMo('editMo');toast('s','Saved','Record updated.');doFilter();}else toast('e','Failed',d.error||'Error');})
+    .catch(e=>{hideLo();toast('e','Error',e.message);});
+}
+
+// Add
+function openAdd(){
+  HDRS.forEach(h=>{
+    const el=document.getElementById('a_'+h.replace(/ /g,'_'));if(el){el.value='';el.classList.remove('inv');}
+    const er=document.getElementById('ae_'+h.replace(/ /g,'_'));if(er)er.classList.remove('show');
+  });
+  openMo('addMo');
+}
+function saveAdd(){
+  const data={};let ok=true;
+  HDRS.forEach(h=>{
+    const el=document.getElementById('a_'+h.replace(/ /g,'_'));
+    const er=document.getElementById('ae_'+h.replace(/ /g,'_'));
+    if(el){const v=el.value.trim();if(!v){el.classList.add('inv');if(er)er.classList.add('show');ok=false;}else{el.classList.remove('inv');if(er)er.classList.remove('show');data[h]=v;}}
+  });
+  if(!ok){toast('e','Validation','Fill in all required fields.');return;}
+  showLo('Adding…');
+  fetch('/admin/dataset/add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)})
+    .then(r=>r.json()).then(d=>{hideLo();if(d.success){closeMo('addMo');toast('s','Added','New record saved.');const t=parseInt(document.getElementById('sTotalRows').textContent.replace(/,/g,''))+1;document.getElementById('sTotalRows').textContent=t.toLocaleString();doFilter(1);}else toast('e','Failed',d.error||'Error');})
+    .catch(e=>{hideLo();toast('e','Error',e.message);});
+}
+
+// Delete
+function confirmDel(idx,sid){delIdx=idx;document.getElementById('delId').textContent=sid;openMo('delMo');}
+function doDelete(){
+  showLo('Deleting…');
+  fetch(`/admin/dataset/row/${delIdx}/delete`,{method:'POST'}).then(r=>r.json()).then(d=>{
+    hideLo();if(d.success){closeMo('delMo');toast('s','Deleted','Record removed.');const t=parseInt(document.getElementById('sTotalRows').textContent.replace(/,/g,''))-1;document.getElementById('sTotalRows').textContent=t.toLocaleString();doFilter();}
+    else toast('e','Failed',d.error||'Error');
+  }).catch(e=>{hideLo();toast('e','Error',e.message);});
+}
+
+// Export filtered
+function exportFiltered(){
+  const q=document.getElementById('qInput').value,s=document.getElementById('streamSel').value,
+    d=document.getElementById('distSel').value,z=document.getElementById('zSel').value;
+  const p=new URLSearchParams();
+  if(q)p.set('q',q);if(s)p.set('stream',s);if(d)p.set('district',d);if(z)p.set('zscore',z);
+  window.location.href='/admin/dataset/export?'+p;
+  toast('i','Exporting','Download starting…');
+}
+
+// Modal helpers
+function openMo(id){document.getElementById(id).classList.add('show');document.body.style.overflow='hidden';}
+function closeMo(id){document.getElementById(id).classList.remove('show');document.body.style.overflow='';}
+document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeMo(m.id);}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.mo.show').forEach(m=>closeMo(m.id));});
+
+// Loading
+function showLo(t='Loading…'){document.getElementById('loTxt').textContent=t;document.getElementById('lo').classList.add('show');}
+function hideLo(){document.getElementById('lo').classList.remove('show');}
+
+// Toast
+function toast(type,title,msg){
+  const icons={s:'bi-check-circle-fill',e:'bi-x-circle-fill',i:'bi-info-circle-fill'};
+  const el=document.createElement('div');el.className=`toast ${type}`;
+  el.innerHTML=`<i class="bi ${icons[type]||icons.i}"></i><div class="t-txt"><strong>${title}</strong><span>${msg}</span></div>`;
+  document.getElementById('tc').appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateX(20px)';el.style.transition='all .3s';setTimeout(()=>el.remove(),350);},3500);
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// Init filter badge
+(function(){
+  const q=document.getElementById('qInput').value,s=document.getElementById('streamSel').value,
+    d=document.getElementById('distSel').value,z=document.getElementById('zSel').value;
+  const hasF=q||s||d||z;
+  document.getElementById('clearBtn').style.display=hasF?'flex':'none';
+  const n=[q,s,d,z].filter(Boolean).length;
+  document.getElementById('filterBadge').innerHTML=n?`<span style="background:var(--purple);color:#fff;border-radius:20px;padding:1px 8px;font-size:11px;font-weight:600;margin-left:6px">${n} filter${n>1?'s':''}</span>`:'';
+})();
+</script>
+</body>
+</html>
