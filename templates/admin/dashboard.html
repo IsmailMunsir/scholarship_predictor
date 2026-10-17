@@ -2,102 +2,540 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Dashboard – Scholarship Predictor</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Dashboard – ScholarPredict</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *{font-family:'Inter',sans-serif;box-sizing:border-box;}
+    body{background:#f1f5f9;margin:0;color:#1e293b;}
+    /* Sidebar — matches dataset editor */
+    :root{--purple:#7c3aed;--purple-l:#ede9fe;--purple-m:#a78bfa;--sw:250px;--sc:64px}
+    .sidebar{width:var(--sw);background:#fff;border-right:1px solid #e5e7eb;position:fixed;top:0;left:0;height:100vh;z-index:200;display:flex;flex-direction:column;overflow:hidden;}
+    .sb-brand{display:flex;align-items:center;gap:10px;padding:18px 14px 14px;border-bottom:1px solid #e5e7eb;min-height:64px;}
+    .sb-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0;}
+    .sb-brand-text b{display:block;font-weight:700;font-size:15px;color:#1e1b4b;}
+    .sb-brand-text small{font-size:11px;color:#6b7280;}
+    .sb-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 8px;}
+    .sb-nav::-webkit-scrollbar{width:3px;}
+    .sb-nav::-webkit-scrollbar-thumb{background:#e5e7eb;border-radius:2px;}
+    .nav-lbl{font-size:10px;font-weight:600;letter-spacing:.06em;color:#6b7280;padding:8px 8px 4px;text-transform:uppercase;}
+    .sb-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:#6b7280;text-decoration:none;font-size:13.5px;font-weight:500;transition:background .15s,color .15s;white-space:nowrap;overflow:hidden;margin-bottom:2px;}
+    .sb-item i{font-size:16px;flex-shrink:0;width:20px;text-align:center;}
+    .sb-item:hover{background:var(--purple-l);color:var(--purple);}
+    .sb-item.active{background:var(--purple-l);color:var(--purple);font-weight:600;}
+    .sb-divider{height:1px;background:#e5e7eb;margin:8px 0;}
+    .sb-footer{padding:12px 10px;border-top:1px solid #e5e7eb;display:flex;align-items:center;gap:10px;}
+    .sb-av{width:32px;height:32px;border-radius:8px;flex-shrink:0;background:var(--purple);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;}
+    .sb-foot-txt b{display:block;font-size:12px;font-weight:600;}
+    .sb-foot-txt small{font-size:10.5px;color:#6b7280;}
+    /* Main */
+    .main{margin-left:var(--sw);min-height:100vh;}
+    /* Topbar */
+    .topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+    .tb-left .tb-title{font-weight:800;font-size:.95rem;color:#1e293b;display:flex;align-items:center;gap:8px;}
+    .tb-left .tb-sub{font-size:.72rem;color:#94a3b8;margin-top:2px;}
+    .live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;animation:blink 1.5s infinite;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+    .tb-btn{padding:7px 14px;border-radius:8px;font-size:.78rem;font-weight:600;border:none;cursor:pointer;text-decoration:none;transition:all .15s;display:inline-flex;align-items:center;gap:5px;}
+    .tb-btn-ind{background:#eef2ff;color:#4f46e5;}.tb-btn-ind:hover{background:#e0e7ff;}
+    .tb-btn-grn{background:#f0fdf4;color:#16a34a;}.tb-btn-grn:hover{background:#dcfce7;}
+    .tb-btn-red{background:#fef2f2;color:#dc2626;}.tb-btn-red:hover{background:#fee2e2;}
+    .tb-btn-gry{background:#f1f5f9;color:#475569;}.tb-btn-gry:hover{background:#e2e8f0;}
+    /* Page body */
+    .page{padding:24px 28px;}
+    /* Section heading */
+    .sec-head{font-weight:800;font-size:.88rem;color:#475569;text-transform:uppercase;letter-spacing:.08em;margin:24px 0 12px;display:flex;align-items:center;gap:8px;}
+    .sec-head:first-child{margin-top:0;}
+    /* Stat Cards */
+    .stat-card{background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.05);height:100%;transition:box-shadow .2s;}
+    .stat-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.09);}
+    .stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.35rem;flex-shrink:0;margin-bottom:14px;}
+    .stat-label{font-size:.72rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+    .stat-val{font-size:2rem;font-weight:800;color:#1e293b;line-height:1;margin-bottom:6px;}
+    .stat-sub{font-size:.72rem;color:#64748b;}
+    .stat-sub span{font-weight:600;}
+    /* Chart cards */
+    .chart-card{background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.05);height:100%;}
+    .cc-title{font-weight:700;font-size:.85rem;color:#1e293b;margin-bottom:16px;display:flex;align-items:center;gap:7px;}
+    /* Table cards */
+    .tbl-card{background:#fff;border-radius:14px;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.05);overflow:hidden;}
+    .tbl-hdr{padding:14px 20px;border-bottom:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;background:#fff;}
+    .tbl-hdr-title{font-weight:700;font-size:.88rem;color:#1e293b;}
+    .tbl-hdr-meta{font-size:.72rem;color:#94a3b8;}
+    .srch{padding:8px 12px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:.8rem;color:#1e293b;outline:none;width:200px;transition:border .2s;}
+    .srch:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.08);}
+    table{width:100%;border-collapse:collapse;font-size:.8rem;}
+    thead th{background:#f8fafc;color:#64748b;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;padding:10px 14px;border-bottom:1px solid #e2e8f0;white-space:nowrap;}
+    tbody td{padding:11px 14px;border-bottom:1px solid #f8fafc;vertical-align:middle;}
+    tbody tr:last-child td{border-bottom:none;}
+    tbody tr:hover{background:#fafbff;}
+    /* Badges */
+    .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:700;}
+    .b-green{background:#dcfce7;color:#16a34a;}
+    .b-gray{background:#f1f5f9;color:#64748b;}
+    .b-blue{background:#dbeafe;color:#1d4ed8;}
+    .b-yellow{background:#fef3c7;color:#d97706;}
+    .b-purple{background:#ede9fe;color:#7c3aed;}
+    .b-indigo{background:#e0e7ff;color:#4338ca;}
+    .z-tag{background:#e0f2fe;color:#0369a1;font-weight:700;padding:2px 8px;border-radius:5px;font-size:.75rem;}
+    /* Action buttons */
+    .act-btn{padding:4px 10px;border-radius:6px;border:none;font-size:.7rem;font-weight:600;cursor:pointer;transition:all .15s;}
+    /* Pagination */
+    .pg-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid #f1f5f9;font-size:.76rem;color:#64748b;}
+    .pg-btn{background:#f1f5f9;color:#475569;border:none;padding:6px 13px;border-radius:7px;font-size:.76rem;font-weight:600;cursor:pointer;transition:background .15s;}
+    .pg-btn:hover:not([disabled]){background:#e2e8f0;}
+    .pg-btn[disabled]{opacity:.4;cursor:not-allowed;}
+    /* Model perf */
+    .model-card{background:#fff;border-radius:14px;padding:20px;border:1px solid #e2e8f0;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+    .model-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f8fafc;}
+    .model-row:last-child{border-bottom:none;}
+    .f1-bg{flex:1;background:#f1f5f9;border-radius:4px;height:8px;overflow:hidden;}
+    .f1-fill{height:8px;border-radius:4px;background:linear-gradient(90deg,#6366f1,#818cf8);}
+    /* Toast */
+    .toast-wrap{position:fixed;bottom:28px;right:28px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+    .toast{padding:12px 18px;border-radius:10px;font-size:.82rem;font-weight:500;color:#fff;box-shadow:0 4px 16px rgba(0,0,0,.15);opacity:0;transform:translateY(10px);transition:all .3s;pointer-events:none;}
+    .toast.show{opacity:1;transform:none;}
+    .toast.ok{background:#1e293b;}
+    .toast.err{background:#dc2626;}
+    /* Empty state */
+    .empty{text-align:center;padding:40px;color:#94a3b8;font-size:.85rem;}
+    .empty .ei{font-size:2.5rem;display:block;margin-bottom:10px;}
+  </style>
 </head>
-<body class="bg-light">
-<nav class="navbar navbar-dark bg-dark px-4">
-  <span class="navbar-brand fw-bold">Admin Panel</span>
-  <a href="/" class="btn btn-outline-light btn-sm">Back to App</a>
-</nav>
+<body>
 
-<div class="container py-4">
+<!-- -- SIDEBAR -- -->
+<aside class="sidebar" id="sb">
+  <div class="sb-brand">
+    <div class="sb-logo"><i class="bi bi-mortarboard-fill"></i></div>
+    <div class="sb-brand-text"><b>ScholarPredict</b><small>Admin Portal</small></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="nav-lbl">Dashboard</div>
+    <a href="#overview" class="sb-item active"><i class="bi bi-grid-1x2-fill"></i><span class="lbl">Overview</span></a>
+    <a href="#analytics" class="sb-item"><i class="bi bi-bar-chart-fill"></i><span class="lbl">Analytics</span></a>
+    <div class="nav-lbl" style="margin-top:8px">Records</div>
+    <a href="#predictions" class="sb-item"><i class="bi bi-clipboard-data-fill"></i><span class="lbl">Predictions</span></a>
+    <a href="#users" class="sb-item"><i class="bi bi-people-fill"></i><span class="lbl">Users</span></a>
+    <a href="/admin/dataset" class="sb-item"><i class="bi bi-table"></i><span class="lbl">Dataset Editor</span></a>
+    <div class="nav-lbl" style="margin-top:8px">System</div>
+    <a href="#models" class="sb-item"><i class="bi bi-cpu-fill"></i><span class="lbl">ML Models</span></a>
+    <a href="/admin/export/predictions" class="sb-item"><i class="bi bi-download"></i><span class="lbl">Export Predictions</span></a>
+    <a href="/admin/export/users" class="sb-item"><i class="bi bi-download"></i><span class="lbl">Export Users</span></a>
+    <div style="margin-top:12px;border-top:1px solid #e5e7eb;padding-top:12px">
+      <a href="/" class="sb-item"><i class="bi bi-arrow-left-circle"></i><span class="lbl">Back to App</span></a>
+      <a href="/admin/logout" class="sb-item"><i class="bi bi-box-arrow-right"></i><span class="lbl">Logout</span></a>
+    </div>
+  </nav>
+  <div class="sb-footer">
+    <div class="sb-av">A</div>
+    <div class="sb-foot-txt"><b>Administrator</b><small>admin123@gmail.com</small></div>
+  </div>
+</aside>
 
-  <!-- Stats Cards -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-4">
-      <div class="card text-white bg-primary">
-        <div class="card-body">
-          <h6 class="card-title">Total Predictions</h6>
-          <h2>{{ total_predictions }}</h2>
-        </div>
-      </div>
+<!-- -- MAIN -- -->
+<div class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-title">Admin Dashboard <span class="live-dot ms-1"></span></div>
+      <div class="tb-sub">University Scholarship Eligibility Predictor — Sri Lanka</div>
     </div>
-    <div class="col-md-4">
-      <div class="card text-white bg-success">
-        <div class="card-body">
-          <h6 class="card-title">Registered Users</h6>
-          <h2>{{ total_users }}</h2>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="card text-white bg-info">
-        <div class="card-body">
-          <h6 class="card-title">Avg Eligible Schemes</h6>
-          <h2>{{ avg_eligible }}</h2>
-        </div>
-      </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="/admin/export/predictions" class="tb-btn tb-btn-ind"><i class="bi bi-download"></i> Predictions CSV</a>
+      <a href="/admin/export/users" class="tb-btn tb-btn-grn"><i class="bi bi-download"></i> Users CSV</a>
+      <a href="/admin/dataset" class="tb-btn tb-btn-ind" style="background:#f0fdf4;color:#16a34a;"><i class="bi bi-table"></i> Dataset</a>
+      <a href="/" class="tb-btn tb-btn-gry"><i class="bi bi-house"></i> App</a>
+      <a href="/admin/logout" class="tb-btn tb-btn-red">Logout</a>
     </div>
   </div>
 
-  <!-- Recent Predictions -->
-  <div class="card mb-4">
-    <div class="card-header fw-bold">Recent Predictions (Last 20)</div>
-    <div class="card-body p-0">
-      <table class="table table-striped table-sm mb-0">
-        <thead class="table-dark">
-          <tr>
-            <th>#</th><th>User</th><th>Z-Score</th><th>Stream</th>
-            <th>Income (LKR)</th><th>District</th><th>Eligible</th><th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for r in recent %}
-          <tr>
-            <td>{{ r.id }}</td>
-            <td>{{ r.full_name or "Guest" }}</td>
-            <td>{{ r.z_score }}</td>
-            <td>{{ r.stream }}</td>
-            <td>{{ "{:,}".format(r.annual_income) }}</td>
-            <td>{{ r.district }}</td>
-            <td><span class="badge bg-{{ 'success' if r.eligible_count > 0 else 'secondary' }}">{{ r.eligible_count }}</span></td>
-            <td>{{ r.created_at[:10] }}</td>
-          </tr>
-          {% else %}
-          <tr><td colspan="8" class="text-center text-muted">No predictions yet.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <div class="page">
 
-  <!-- Users -->
-  <div class="card">
-    <div class="card-header fw-bold">Registered Users</div>
-    <div class="card-body p-0">
-      <table class="table table-striped table-sm mb-0">
-        <thead class="table-dark">
-          <tr><th>#</th><th>Name</th><th>Email</th><th>Verified</th><th>Admin</th><th>Joined</th></tr>
-        </thead>
-        <tbody>
-          {% for u in users %}
-          <tr>
-            <td>{{ u.id }}</td>
-            <td>{{ u.full_name }}</td>
-            <td>{{ u.email }}</td>
-            <td>{{ "Yes" if u.is_verified else "No" }}</td>
-            <td>{{ "Yes" if u.is_admin else "No" }}</td>
-            <td>{{ u.created_at[:10] }}</td>
-          </tr>
-          {% else %}
-          <tr><td colspan="6" class="text-center text-muted">No users yet.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <!-- -- Overview -- -->
+    <div class="sec-head" id="overview"><i class="bi bi-grid-1x2-fill"></i> Overview</div>
+    <div class="row g-3 mb-2">
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#eef2ff;"><i class="bi bi-mortarboard-fill"></i></div>
+          <div class="stat-label">Total Predictions</div>
+          <div class="stat-val">{{ total_predictions }}</div>
+          <div class="stat-sub">Guest: <span>{{ guest_predictions }}</span> &nbsp;·&nbsp; Users: <span>{{ total_predictions - guest_predictions }}</span></div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#f0fdf4;"><i class="bi bi-mortarboard-fill"></i></div>
+          <div class="stat-label">Registered Users</div>
+          <div class="stat-val">{{ total_users }}</div>
+          <div class="stat-sub">Verified: <span>{{ verified_users }}</span> &nbsp;·&nbsp; Pending: <span>{{ total_users - verified_users }}</span></div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#fff7ed;"><i class="bi bi-mortarboard-fill"></i></div>
+          <div class="stat-label">Avg Eligible Schemes</div>
+          <div class="stat-val">{{ avg_eligible }}</div>
+          <div class="stat-sub">Avg Z-Score: <span>{{ avg_zscore }}</span></div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#f0f9ff;"><i class="bi bi-mortarboard-fill"></i></div>
+          <div class="stat-label">Avg Annual Income</div>
+          <div class="stat-val" style="font-size:1.3rem;">Rs.{{ "{:,}".format(avg_income) }}</div>
+          <div class="stat-sub">Active ML Models: <span>6</span></div>
+        </div>
+      </div>
     </div>
-  </div>
 
-</div>
+    <!-- -- Analytics -- -->
+    <div class="sec-head" id="analytics"><i class="bi bi-bar-chart-fill"></i> Analytics</div>
+    <div class="row g-3 mb-3">
+      <div class="col-lg-8">
+        <div class="chart-card">
+          <div class="cc-title">?? Monthly Prediction Trend</div>
+          <canvas id="monthlyChart" height="110"></canvas>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="chart-card">
+          <div class="cc-title">?? Eligible Scheme Split</div>
+          <canvas id="eligibleChart" height="175"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-md-4">
+        <div class="chart-card">
+          <div class="cc-title"><i class="bi bi-clipboard-data-fill"></i> Predictions by Stream</div>
+          <canvas id="streamChart" height="175"></canvas>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="chart-card">
+          <div class="cc-title">?? Income Brackets</div>
+          <canvas id="incomeChart" height="175"></canvas>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="chart-card">
+          <div class="cc-title">?? Z-Score Distribution</div>
+          <canvas id="zscoreChart" height="175"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="row g-3 mb-3">
+      <div class="col-12">
+        <div class="chart-card">
+          <div class="cc-title">??? Top Districts by Predictions</div>
+          <canvas id="districtChart" height="70"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- -- Predictions -- -->
+    <div class="sec-head" id="predictions">?? Recent Predictions</div>
+    <div class="tbl-card mb-3">
+      <div class="tbl-hdr">
+        <div>
+          <div class="tbl-hdr-title">Prediction Records</div>
+          <div class="tbl-hdr-meta" id="predMeta"></div>
+        </div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <input type="text" id="predSearch" class="srch" placeholder="?? Search student, stream...">
+          <select id="predStream" class="srch" style="width:140px;">
+            <option value="">All Streams</option>
+            <option>Biological Science</option>
+            <option>Physical Science</option>
+            <option>Commerce</option>
+            <option>Arts</option>
+            <option>Technology</option>
+          </select>
+          <a href="/admin/export/predictions" class="tb-btn tb-btn-ind">? CSV</a>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>#</th><th>Student</th><th>Z-Score</th><th>Stream</th><th>Income (LKR)</th><th>District</th><th>Eligible</th><th>Date</th></tr></thead>
+          <tbody id="predBody">
+            {% for r in recent %}
+            <tr data-stream="{{ r.stream }}">
+              <td style="color:#94a3b8;font-size:.72rem;">{{ r.id }}</td>
+              <td style="font-weight:600;">{{ r.full_name or "Guest" }}</td>
+              <td><span class="z-tag">{{ r.z_score }}</span></td>
+              <td>{{ r.stream }}</td>
+              <td>Rs. {{ "{:,}".format(r.annual_income) }}</td>
+              <td>{{ r.district }}</td>
+              <td>
+                {% if r.eligible_count > 0 %}
+                  <span class="badge b-green">? {{ r.eligible_count }} scheme{{ 's' if r.eligible_count!=1 else '' }}</span>
+                {% else %}<span class="badge b-gray">None</span>{% endif %}
+              </td>
+              <td style="color:#94a3b8;font-size:.72rem;">{{ r.created_at[:10] }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8"><div class="empty"><span class="ei">??</span>No predictions yet.</div></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="pg-bar">
+        <span id="predPgInfo" style="font-size:.76rem;color:#64748b;"></span>
+        <div class="d-flex gap-2">
+          <button class="pg-btn" id="predPrev">? Prev</button>
+          <button class="pg-btn" id="predNext">Next ?</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- -- Users -- -->
+    <div class="sec-head" id="users">?? User Management</div>
+    <div class="tbl-card mb-3">
+      <div class="tbl-hdr">
+        <div>
+          <div class="tbl-hdr-title">Registered Users</div>
+          <div class="tbl-hdr-meta">{{ total_users }} total accounts</div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <input type="text" id="userSearch" class="srch" placeholder="?? Search name or email...">
+          <a href="/admin/export/users" class="tb-btn tb-btn-grn">? CSV</a>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>#</th><th>Full Name</th><th>Email</th><th>Predictions</th><th>Verified</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+          <tbody id="userBody">
+            {% for u in users %}
+            <tr id="ur-{{ u.id }}">
+              <td style="color:#94a3b8;font-size:.72rem;">{{ u.id }}</td>
+              <td style="font-weight:600;">{{ u.full_name }}</td>
+              <td style="color:#475569;font-size:.78rem;">{{ u.email }}</td>
+              <td><span class="badge b-indigo">{{ u.pred_count }}</span></td>
+              <td><span id="vb-{{ u.id }}" class="badge {{ 'b-blue' if u.is_verified else 'b-yellow' }}">{{ '? Verified' if u.is_verified else '? Pending' }}</span></td>
+              <td><span id="rb-{{ u.id }}" class="badge {{ 'b-purple' if u.is_admin else 'b-gray' }}">{{ '? Admin' if u.is_admin else 'User' }}</span></td>
+              <td style="color:#94a3b8;font-size:.72rem;">{{ u.created_at[:10] }}</td>
+              <td>
+                <button class="act-btn" style="background:#dbeafe;color:#1d4ed8;" onclick="toggleVerify({{ u.id }})">Verify</button>
+                <button class="act-btn ms-1" style="background:#ede9fe;color:#7c3aed;" onclick="toggleAdmin({{ u.id }})">Role</button>
+                <button class="act-btn ms-1" style="background:#fee2e2;color:#dc2626;" onclick="deleteUser({{ u.id }},'{{ u.full_name }}')">Del</button>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8"><div class="empty"><span class="ei">??</span>No users yet.</div></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- -- ML Models -- -->
+    <div class="sec-head" id="models"><i class="bi bi-cpu-fill"></i> ML Model Performance</div>
+    <div class="model-card mb-3">
+      <div style="display:flex;gap:10px;margin-bottom:10px;font-size:.67rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;">
+        <span style="width:56px;">ID</span>
+        <span style="flex:1;">Scheme Name</span>
+        <span style="flex:2;">F1 Score Bar</span>
+        <span style="width:40px;text-align:right;">F1</span>
+        <span style="width:72px;text-align:right;">AUC-ROC</span>
+      </div>
+      {% for m in model_stats %}
+      <div class="model-row">
+        <span style="width:56px;font-size:.7rem;font-weight:700;color:#6366f1;">{{ m.id }}</span>
+        <span style="flex:1;font-size:.8rem;font-weight:600;color:#334155;">{{ m.name }}</span>
+        <div style="flex:2;"><div class="f1-bg"><div class="f1-fill" style="width:{{ (m.f1*100)|int }}%;"></div></div></div>
+        <span style="width:40px;text-align:right;font-size:.76rem;font-weight:700;color:#4f46e5;">{{ "%.3f"|format(m.f1) }}</span>
+        <span style="width:72px;text-align:right;font-size:.7rem;color:{{ '#16a34a' if m.auc>=0.999 else '#0369a1' }};">{{ "%.4f"|format(m.auc) }}</span>
+      </div>
+      {% endfor %}
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid #f1f5f9;font-size:.72rem;color:#94a3b8;">
+        ? All models trained with SMOTE-balanced datasets &nbsp;·&nbsp; RandomForest (n=300) &nbsp;·&nbsp; Cross-validated
+      </div>
+    </div>
+
+  </div><!-- /page -->
+</div><!-- /main -->
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// -- Charts --------------------------------------------------
+const C=['#c7d2fe','#a5f3fc','#bbf7d0','#fde68a','#fecaca','#ddd6fe','#fed7aa','#cffafe','#d9f99d'];
+const B=['#6366f1','#06b6d4','#22c55e','#f59e0b','#ef4444','#8b5cf6','#f97316','#0891b2','#65a30d'];
+const BASE={plugins:{legend:{display:false}},scales:{
+  y:{beginAtZero:true,grid:{color:'#f1f5f9'},ticks:{color:'#94a3b8',font:{size:10}}},
+  x:{grid:{display:false},ticks:{color:'#64748b',font:{size:10}}}}};
+
+function barChart(id,data){
+  const keys=Object.keys(data),vals=Object.values(data);
+  new Chart(document.getElementById(id),{type:'bar',data:{
+    labels:keys.length?keys:['No data'],
+    datasets:[{data:vals.length?vals:[0],
+      backgroundColor:keys.map((_,i)=>C[i%C.length]),
+      borderColor:keys.map((_,i)=>B[i%B.length]),
+      borderWidth:2,borderRadius:7}]
+  },options:BASE});
+}
+
+const streamData={{ stream_data|tojson }};
+const eligibleData={{ eligible_data|tojson }};
+const districtData={{ district_data|tojson }};
+const incomeData={{ income_brackets|tojson }};
+const zscoreData={{ zscore_hist|tojson }};
+const monthlyData={{ monthly_data|tojson }};
+
+barChart('streamChart',streamData);
+barChart('incomeChart',incomeData);
+barChart('zscoreChart',zscoreData);
+barChart('districtChart',districtData);
+
+new Chart(document.getElementById('monthlyChart'),{type:'line',data:{
+  labels:Object.keys(monthlyData).length?Object.keys(monthlyData):['No data'],
+  datasets:[{data:Object.values(monthlyData).length?Object.values(monthlyData):[0],
+    borderColor:'#6366f1',backgroundColor:'rgba(99,102,241,.07)',
+    borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#6366f1',fill:true,tension:.35}]
+},options:{plugins:{legend:{display:false}},scales:{
+  y:{beginAtZero:true,grid:{color:'#f1f5f9'},ticks:{color:'#94a3b8'}},
+  x:{grid:{display:false},ticks:{color:'#64748b'}}}}});
+
+new Chart(document.getElementById('eligibleChart'),{type:'doughnut',data:{
+  labels:Object.keys(eligibleData).length?Object.keys(eligibleData):['No data'],
+  datasets:[{data:Object.values(eligibleData).length?Object.values(eligibleData):[1],
+    backgroundColor:C,borderColor:'#fff',borderWidth:3}]
+},options:{cutout:'62%',plugins:{legend:{position:'bottom',labels:{font:{size:10},color:'#64748b',padding:8}}}}});
+
+// -- Toast ----------------------------------------------------
+function toast(msg,ok=true){
+  const d=document.createElement('div');
+  d.className='toast '+(ok?'ok':'err');
+  d.textContent=(ok?'? ':'? ')+msg;
+  document.getElementById('toastWrap').appendChild(d);
+  requestAnimationFrame(()=>{d.classList.add('show');});
+  setTimeout(()=>{d.classList.remove('show');setTimeout(()=>d.remove(),400);},3000);
+}
+
+// -- Predictions table ----------------------------------------
+const allPredRows=Array.from(document.querySelectorAll('#predBody tr[data-stream]'));
+let visRows=allPredRows, predPg=1; const PER=15;
+
+function applyFilters(){
+  const q=document.getElementById('predSearch').value.toLowerCase();
+  const s=document.getElementById('predStream').value.toLowerCase();
+  visRows=allPredRows.filter(r=>{
+    const txt=r.innerText.toLowerCase();
+    const stream=(r.dataset.stream||'').toLowerCase();
+    return (!q||txt.includes(q))&&(!s||stream.includes(s));
+  });
+  renderPred(1);
+}
+
+function renderPred(pg){
+  predPg=pg; const st=(pg-1)*PER, en=st+PER;
+  allPredRows.forEach(r=>r.style.display='none');
+  visRows.slice(st,en).forEach(r=>r.style.display='');
+  const total=visRows.length;
+  document.getElementById('predPgInfo').textContent=total?`Showing ${st+1}–${Math.min(en,total)} of ${total} records`:'No records found';
+  document.getElementById('predMeta').textContent=total+' records';
+  document.getElementById('predPrev').disabled=pg<=1;
+  document.getElementById('predNext').disabled=en>=total;
+  document.getElementById('predPrev').onclick=()=>renderPred(pg-1);
+  document.getElementById('predNext').onclick=()=>renderPred(pg+1);
+}
+document.getElementById('predSearch').addEventListener('input',applyFilters);
+document.getElementById('predStream').addEventListener('change',applyFilters);
+applyFilters();
+
+// -- User search ----------------------------------------------
+document.getElementById('userSearch').addEventListener('input',function(){
+  const q=this.value.toLowerCase();
+  document.querySelectorAll('#userBody tr').forEach(r=>{
+    r.style.display=(!q||r.innerText.toLowerCase().includes(q))?'':'none';
+  });
+});
+
+// -- User actions ---------------------------------------------
+function toggleVerify(uid){
+  fetch('/admin/user/'+uid+'/toggle-verify',{method:'POST'}).then(r=>r.json()).then(d=>{
+    if(d.ok){const b=document.getElementById('vb-'+uid);
+      b.className='badge '+(d.is_verified?'b-blue':'b-yellow');
+      b.textContent=d.is_verified?'? Verified':'? Pending';
+      toast(d.is_verified?'User verified':'Verification removed');
+    }else toast(d.error,false);
+  });
+}
+function toggleAdmin(uid){
+  fetch('/admin/user/'+uid+'/toggle-admin',{method:'POST'}).then(r=>r.json()).then(d=>{
+    if(d.ok){const b=document.getElementById('rb-'+uid);
+      b.className='badge '+(d.is_admin?'b-purple':'b-gray');
+      b.textContent=d.is_admin?'? Admin':'User';
+      toast(d.is_admin?'User promoted to Admin':'Admin role removed');
+    }else toast(d.error,false);
+  });
+}
+function deleteUser(uid,name){
+  if(!confirm('Delete "'+name+'" and all their predictions?\n\nThis cannot be undone.'))return;
+  fetch('/admin/user/'+uid+'/delete',{method:'POST'}).then(r=>r.json()).then(d=>{
+    if(d.ok){document.getElementById('ur-'+uid)?.remove();toast('User deleted');}
+    else toast(d.error,false);
+  });
+}
+
+// Sidebar navigation — click + scroll-spy
+const sections = ['overview','analytics','predictions','users','models'];
+const sidebarLinks = document.querySelectorAll('.sb-item');
+
+function setActive(id) {
+  sidebarLinks.forEach(a => {
+    a.classList.remove('active');
+    const href = a.getAttribute('href') || '';
+    if (href === '#' + id || href === '/admin#' + id || href === '/admin/dataset' && id === 'dataset') {
+      a.classList.add('active');
+    }
+  });
+}
+
+// Click handler — pause scroll-spy for 800ms after click
+let scrollSpyPaused = false;
+sidebarLinks.forEach(a => {
+  a.addEventListener('click', function(e) {
+    const href = this.getAttribute('href') || '';
+    // External pages: let browser navigate normally
+    if (!href.startsWith('#')) return;
+    sidebarLinks.forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+    scrollSpyPaused = true;
+    setTimeout(() => { scrollSpyPaused = false; }, 800);
+  });
+});
+
+// Scroll-spy
+const observer = new IntersectionObserver((entries) => {
+  if (scrollSpyPaused) return;
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      setActive(entry.target.id);
+    }
+  });
+}, { rootMargin: '-10% 0px -75% 0px', threshold: 0 });
+
+sections.forEach(id => {
+  const el = document.getElementById(id);
+  if (el) observer.observe(el);
+});
+
+// Set active on load from hash
+const hash = window.location.hash.replace('#','');
+if (hash && sections.includes(hash)) {
+  setActive(hash);
+} else {
+  setActive('overview');
+}
+</script>
 </body>
 </html>
+
