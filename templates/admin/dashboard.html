@@ -13,7 +13,7 @@
     body{background:#f1f5f9;margin:0;color:#1e293b;}
     /* Sidebar — matches dataset editor */
     :root{--purple:#7c3aed;--purple-l:#ede9fe;--purple-m:#a78bfa;--sw:250px;--sc:64px}
-    .sidebar{width:var(--sw);background:#fff;border-right:1px solid #e5e7eb;position:fixed;top:0;left:0;height:100vh;z-index:200;display:flex;flex-direction:column;overflow:hidden;}
+    .sidebar{width:250px;background:#fff;border-right:1px solid #e5e7eb;position:fixed;top:0;left:0;height:100vh;z-index:200;display:flex;flex-direction:column;overflow:hidden;}
     .sb-brand{display:flex;align-items:center;gap:10px;padding:18px 14px 14px;border-bottom:1px solid #e5e7eb;min-height:64px;}
     .sb-logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#6d28d9);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;flex-shrink:0;}
     .sb-brand-text b{display:block;font-weight:700;font-size:15px;color:#1e1b4b;}
@@ -32,9 +32,9 @@
     .sb-foot-txt b{display:block;font-size:12px;font-weight:600;}
     .sb-foot-txt small{font-size:10.5px;color:#6b7280;}
     /* Main */
-    .main{margin-left:var(--sw);min-height:100vh;}
+    .main{margin-left:250px;min-height:100vh;width:calc(100% - 250px);padding-top:64px;overflow-x:auto;}
     /* Topbar */
-    .topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 28px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+    .topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:12px 28px;display:flex;justify-content:space-between;align-items:center;position:fixed;left:250px;right:0;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.04);}
     .tb-left .tb-title{font-weight:800;font-size:.95rem;color:#1e293b;display:flex;align-items:center;gap:8px;}
     .tb-left .tb-sub{font-size:.72rem;color:#94a3b8;margin-top:2px;}
     .live-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;display:inline-block;animation:blink 1.5s infinite;}
@@ -198,13 +198,13 @@
     <div class="row g-3 mb-3">
       <div class="col-lg-8">
         <div class="chart-card">
-          <div class="cc-title">?? Monthly Prediction Trend</div>
+          <div class="cc-title">📈 Monthly Prediction Trend</div>
           <canvas id="monthlyChart" height="110"></canvas>
         </div>
       </div>
       <div class="col-lg-4">
         <div class="chart-card">
-          <div class="cc-title">?? Eligible Scheme Split</div>
+          <div class="cc-title">🥧 Eligible Scheme Split</div>
           <canvas id="eligibleChart" height="175"></canvas>
         </div>
       </div>
@@ -218,13 +218,13 @@
       </div>
       <div class="col-md-4">
         <div class="chart-card">
-          <div class="cc-title">?? Income Brackets</div>
+          <div class="cc-title">💰 Income Brackets</div>
           <canvas id="incomeChart" height="175"></canvas>
         </div>
       </div>
       <div class="col-md-4">
         <div class="chart-card">
-          <div class="cc-title">?? Z-Score Distribution</div>
+          <div class="cc-title">📊 Z-Score Distribution</div>
           <canvas id="zscoreChart" height="175"></canvas>
         </div>
       </div>
@@ -232,14 +232,14 @@
     <div class="row g-3 mb-3">
       <div class="col-12">
         <div class="chart-card">
-          <div class="cc-title">??? Top Districts by Predictions</div>
+          <div class="cc-title">🗺️ Top Districts by Predictions</div>
           <canvas id="districtChart" height="70"></canvas>
         </div>
       </div>
     </div>
 
     <!-- -- Predictions -- -->
-    <div class="sec-head" id="predictions">?? Recent Predictions</div>
+    <div class="sec-head" id="predictions">📋 Recent Predictions</div>
     <div class="tbl-card mb-3">
       <div class="tbl-hdr">
         <div>
@@ -247,7 +247,7 @@
           <div class="tbl-hdr-meta" id="predMeta"></div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-          <input type="text" id="predSearch" class="srch" placeholder="?? Search student, stream...">
+          <input type="text" id="predSearch" class="srch" placeholder="🔍 Search student, stream...">
           <select id="predStream" class="srch" style="width:140px;">
             <option value="">All Streams</option>
             <option>Biological Science</option>
@@ -279,7 +279,7 @@
               <td style="color:#94a3b8;font-size:.72rem;">{{ r.created_at[:10] }}</td>
             </tr>
             {% else %}
-            <tr><td colspan="8"><div class="empty"><span class="ei">??</span>No predictions yet.</div></td></tr>
+            <tr><td colspan="8"><div class="empty"><span class="ei">📭</span>No predictions yet.</div></td></tr>
             {% endfor %}
           </tbody>
         </table>
@@ -294,7 +294,7 @@
     </div>
 
     <!-- -- Users -- -->
-    <div class="sec-head" id="users">?? User Management</div>
+    <div class="sec-head" id="users">👥 User Management</div>
     <div class="tbl-card mb-3">
       <div class="tbl-hdr">
         <div>
@@ -302,7 +302,7 @@
           <div class="tbl-hdr-meta">{{ total_users }} total accounts</div>
         </div>
         <div class="d-flex align-items-center gap-2">
-          <input type="text" id="userSearch" class="srch" placeholder="?? Search name or email...">
+          <input type="text" id="userSearch" class="srch" placeholder="🔍 Search name or email...">
           <a href="/admin/export/users" class="tb-btn tb-btn-grn">? CSV</a>
         </div>
       </div>
@@ -326,7 +326,7 @@
               </td>
             </tr>
             {% else %}
-            <tr><td colspan="8"><div class="empty"><span class="ei">??</span>No users yet.</div></td></tr>
+            <tr><td colspan="8"><div class="empty"><span class="ei">👤</span>No users yet.</div></td></tr>
             {% endfor %}
           </tbody>
         </table>
