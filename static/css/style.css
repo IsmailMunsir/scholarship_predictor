@@ -35,6 +35,10 @@ body {
   flex-direction: column;
 }
 
+main {
+  padding-top: 1.5rem;
+}
+
 /* â”€â”€ Navbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .navbar {
   background: var(--navy);
@@ -177,6 +181,12 @@ body {
 }
 
 /* â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+main {
+  display: block;
+  padding-top: 0;
+  margin-top: 0;
+}
+
 .footer {
   margin-top: auto;
   text-align: center;
@@ -657,6 +667,10 @@ body {
   padding: 1.1rem 1.2rem;
   flex: 1;
 }
+
+main {
+  padding-top: 1.5rem;
+}
 .card-top {
   display: flex;
   justify-content: space-between;
@@ -673,6 +687,10 @@ body {
   font-size: 0.8rem;
   color: var(--dgray);
   display: block;
+}
+
+main {
+  padding-top: 1.5rem;
 }
 .prob-badge {
   font-size: 1.4rem;
@@ -766,6 +784,10 @@ body {
   border-radius: 8px;
   padding: 1rem 1.2rem;
   margin-top: 0.6rem;
+}
+
+main {
+  padding-top: 1.5rem;
 }
 .guide-body h4 {
   font-size: 0.88rem;
@@ -1240,4 +1262,9 @@ body.auth-page {
 }
 
 
+
+
+
+
+html, body { margin-top: 0 !important; padding-top: 0 !important; }
 
