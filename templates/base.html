@@ -56,7 +56,7 @@
         <span>{{ msg }}</span>
         <button class="flash-close"
                 onclick="this.parentElement.remove()">
-          Ã—
+          &times;
         </button>
       </div>
       {% endfor %}
@@ -65,14 +65,14 @@
   {% endwith %}
 
   <!-- Page content -->
-  <main>
+  <main style="margin:0;padding:0;">
     {% block content %}{% endblock %}
   </main>
 
   <!-- Footer -->
   <footer class="footer">
     <p>
-      Â© {{ current_year }}
+      &copy; {{ current_year }}
       University Scholarship Eligibility Predictor
       &nbsp;|&nbsp; Esoft Metro Campus
       &nbsp;|&nbsp; CS6P05ES
@@ -84,6 +84,7 @@
   {% block scripts %}{% endblock %}
 </body>
 </html>
+
 
 
 
