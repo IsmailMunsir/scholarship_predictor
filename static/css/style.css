@@ -563,8 +563,8 @@ body {
 /* â”€â”€ Results page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .results-page {
   max-width: 860px;
-  margin: 2rem auto;
-  padding: 0 1.25rem 3rem;
+  margin: 0 auto;
+  padding: 1.2rem 1.25rem 3rem;
 }
 .stat-row {
   display: grid;
@@ -1075,8 +1075,8 @@ body.auth-page {
 /* â”€â”€ Profile page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .profile-page {
   max-width: 860px;
-  margin: 2rem auto;
-  padding: 0 1.25rem 3rem;
+  margin: 0 auto;
+  padding: 1.2rem 1.25rem 3rem;
 }
 .profile-header {
   display: flex;
@@ -1238,4 +1238,6 @@ body.auth-page {
     gap: 0.75rem;
   }
 }
+
+
 
