@@ -35,11 +35,8 @@ body {
   flex-direction: column;
 }
 
-main {
-  display: block;
-  margin: 0;
-  padding: 0;
-}
+main { display: block; margin: 0; padding: 0; }
+main > *:first-child { margin-top: 0; }
 
 
 /* â”€â”€ Navbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -666,11 +663,8 @@ main {
   flex: 1;
 }
 
-main {
-  display: block;
-  margin: 0;
-  padding: 0;
-}
+main { display: block; margin: 0; padding: 0; }
+main > *:first-child { margin-top: 0; }
 
 .card-top {
   display: flex;
@@ -690,11 +684,8 @@ main {
   display: block;
 }
 
-main {
-  display: block;
-  margin: 0;
-  padding: 0;
-}
+main { display: block; margin: 0; padding: 0; }
+main > *:first-child { margin-top: 0; }
 
 .prob-badge {
   font-size: 1.4rem;
@@ -790,11 +781,8 @@ main {
   margin-top: 0.6rem;
 }
 
-main {
-  display: block;
-  margin: 0;
-  padding: 0;
-}
+main { display: block; margin: 0; padding: 0; }
+main > *:first-child { margin-top: 0; }
 
 .guide-body h4 {
   font-size: 0.88rem;
@@ -1105,7 +1093,7 @@ body.auth-page {
 .profile-page {
   max-width: 860px;
   margin: 0 auto;
-  padding: 1.2rem 1.25rem 3rem;
+  padding: 0 1.25rem 3rem;
 }
 .profile-header {
   display: flex;
@@ -1267,6 +1255,8 @@ body.auth-page {
     gap: 0.75rem;
   }
 }
+
+
 
 
 
