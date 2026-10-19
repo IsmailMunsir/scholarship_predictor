@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -19,13 +19,14 @@
   <nav class="navbar">
     <div class="nav-inner">
       <a href="{{ url_for('welcome') }}" class="nav-brand">
-        <span class="nav-icon">🎓</span>
+        <span class="nav-icon">ðŸŽ“</span>
         <span class="nav-title">ScholarshipAI</span>
       </a>
       <div class="nav-links">
         {% if current_user.is_authenticated %}
           <a href="{{ url_for('welcome') }}"
              class="nav-link">Home</a>
+          <a href="{{ url_for('history') }}" class="nav-link">History</a>
           <a href="{{ url_for('auth.profile') }}"
              class="nav-link">
             <span class="avatar">
@@ -55,7 +56,7 @@
         <span>{{ msg }}</span>
         <button class="flash-close"
                 onclick="this.parentElement.remove()">
-          ×
+          Ã—
         </button>
       </div>
       {% endfor %}
@@ -71,7 +72,7 @@
   <!-- Footer -->
   <footer class="footer">
     <p>
-      © {{ current_year }}
+      Â© {{ current_year }}
       University Scholarship Eligibility Predictor
       &nbsp;|&nbsp; Esoft Metro Campus
       &nbsp;|&nbsp; CS6P05ES
