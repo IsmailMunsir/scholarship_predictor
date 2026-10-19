@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}My Profile{% endblock %}
 
 {% block content %}
@@ -16,7 +16,7 @@
         {{ current_user.email }}
       </p>
       <span class="badge-verified">
-        ✓ Verified
+        âœ“ Verified
       </span>
     </div>
   </div>
@@ -31,6 +31,15 @@
   {% endwith %}
 
   <div class="profile-grid">
+
+    <!-- Prediction History -->
+    <div class="profile-card">
+      <h2 class="card-title">Prediction History</h2>
+      <p style="color:#5f5e5a;font-size:14px;margin-bottom:16px;">View all your past scholarship eligibility checks.</p>
+      <a href="{{ url_for('history') }}" style="display:inline-flex;align-items:center;gap:6px;background:#2e75b6;color:#fff;padding:9px 18px;border-radius:9px;font-size:13.5px;font-weight:600;text-decoration:none;">
+        &#128203; View History
+      </a>
+    </div>
 
     <!-- Change password -->
     <div class="profile-card">
@@ -94,9 +103,9 @@
             </span>
           </div>
           <div class="history-detail">
-            Z={{ row['z_score'] }} ·
+            Z={{ row['z_score'] }} Â·
             Rs.{{ "{:,}".format(
-                  row['annual_income']) }} ·
+                  row['annual_income']) }} Â·
             {{ row['district'] }}
           </div>
           <span class="badge-eligible">
@@ -110,7 +119,7 @@
         No predictions yet.
         <a href="{{ url_for('welcome') }}"
            class="form-link">
-          Check eligibility →
+          Check eligibility â†’
         </a>
       </p>
       {% endif %}
@@ -131,3 +140,4 @@
 
 </div>
 {% endblock %}
+
