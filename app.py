@@ -280,6 +280,29 @@ def api_history():
     return jsonify([dict(r) for r in rows])
 
 
+@app.route("/history")
+@login_required
+def history():
+    rows = execute("""
+        SELECT id, z_score, stream, grade_a_count,
+               annual_income, district, eligible_count,
+               results_json, created_at
+        FROM predictions WHERE user_id=?
+        ORDER BY created_at DESC
+    """, (current_user.id,), fetchall=True)
+    predictions = []
+    for r in (rows or []):
+        predictions.append({
+            "id": r["id"], "z_score": r["z_score"],
+            "stream": r["stream"], "grade_a_count": r["grade_a_count"],
+            "annual_income": r["annual_income"], "district": r["district"],
+            "eligible_count": r["eligible_count"],
+            "results": json.loads(r["results_json"] or "[]"),
+            "created_at": r["created_at"],
+        })
+    return render_template("history.html", predictions=predictions)
+
+
 # â”€â”€ Error pages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 def server_error(e):

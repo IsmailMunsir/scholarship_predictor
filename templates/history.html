@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prediction History - ScholarPredict</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f8fafc;color:#1e1b4b;font-size:14px}
+a{text-decoration:none}
+.navbar{background:#1e1b4b;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.nav-brand{color:#fff;font-weight:700;font-size:17px;display:flex;align-items:center;gap:8px;}
+.nav-brand i{color:#a78bfa;}
+.nav-links{display:flex;align-items:center;gap:8px;}
+.nav-btn{padding:7px 16px;border-radius:8px;font-size:13px;font-weight:500;color:#c4b5fd;transition:background .15s;}
+.nav-btn:hover{background:#2d2a6e;color:#fff;}
+.nav-btn.active{background:#7c3aed;color:#fff;}
+.page{max-width:960px;margin:0 auto;padding:32px 20px;}
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+.page-title{font-size:22px;font-weight:700;color:#1e1b4b;}
+.page-sub{font-size:13px;color:#6b7280;margin-top:2px;}
+.btn-new{display:inline-flex;align-items:center;gap:6px;background:#7c3aed;color:#fff;padding:9px 18px;border-radius:9px;font-size:13.5px;font-weight:600;transition:background .15s;}
+.btn-new:hover{background:#6d28d9;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 20px;}
+.stat-val{font-size:24px;font-weight:700;color:#7c3aed;}
+.stat-lbl{font-size:12px;color:#6b7280;margin-top:2px;}
+.pred-card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;margin-bottom:16px;overflow:hidden;transition:box-shadow .15s;}
+.pred-card:hover{box-shadow:0 4px 16px rgba(124,58,237,.08);}
+.pred-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #f3f4f6;cursor:pointer;}
+.pred-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.pred-num{font-size:12px;font-weight:600;color:#7c3aed;background:#ede9fe;padding:3px 8px;border-radius:6px;}
+.pred-stream{font-size:13px;font-weight:600;color:#1e1b4b;}
+.pred-date{font-size:12px;color:#9ca3af;}
+.pred-badges{display:flex;align-items:center;gap:8px;}
+.badge{font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:20px;}
+.badge-green{background:#d1fae5;color:#065f46;}
+.badge-red{background:#fee2e2;color:#991b1b;}
+.chevron{font-size:16px;color:#9ca3af;transition:transform .2s;}
+.chevron.open{transform:rotate(180deg);}
+.pred-body{display:none;padding:16px 18px;}
+.pred-body.open{display:block;}
+.info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.info-item{background:#f8fafc;border-radius:8px;padding:10px 12px;}
+.info-lbl{font-size:11px;color:#9ca3af;margin-bottom:2px;}
+.info-val{font-size:13px;font-weight:600;color:#1e1b4b;}
+.schemes-title{font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;}
+.scheme-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;margin-bottom:4px;font-size:12.5px;}
+.scheme-row.elig{background:#f0fdf4;border:1px solid #bbf7d0;}
+.scheme-row.inelig{background:#fafafa;border:1px solid #f3f4f6;color:#9ca3af;}
+.scheme-name{font-weight:500;}
+.scheme-amt{font-size:11.5px;color:#6b7280;}
+.scheme-badge{font-size:11px;font-weight:600;padding:2px 7px;border-radius:10px;}
+.elig .scheme-badge{background:#d1fae5;color:#065f46;}
+.inelig .scheme-badge{background:#f3f4f6;color:#9ca3af;}
+.empty{text-align:center;padding:60px 20px;}
+.empty-icon{font-size:48px;color:#d1d5db;margin-bottom:16px;}
+.empty-title{font-size:18px;font-weight:600;color:#374151;margin-bottom:8px;}
+.empty-sub{font-size:13.5px;color:#9ca3af;margin-bottom:24px;}
+@media(max-width:600px){.stats{grid-template-columns:1fr 1fr;}.info-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/" class="nav-brand"><i class="bi bi-mortarboard-fill"></i> ScholarPredict</a>
+  <div class="nav-links">
+    <a href="/academic" class="nav-btn">New Prediction</a>
+    <a href="/history" class="nav-btn active">History</a>
+    <a href="/auth/profile" class="nav-btn">Profile</a>
+    <a href="/auth/logout" class="nav-btn">Logout</a>
+  </div>
+</nav>
+<div class="page">
+  <div class="page-head">
+    <div>
+      <div class="page-title">Prediction History</div>
+      <div class="page-sub">All your past scholarship eligibility checks</div>
+    </div>
+    <a href="/academic" class="btn-new"><i class="bi bi-plus-circle"></i> New Prediction</a>
+  </div>
+  {% if predictions %}
+  <div class="stats">
+    <div class="stat-card"><div class="stat-val">{{ predictions|length }}</div><div class="stat-lbl">Total Predictions</div></div>
+    <div class="stat-card"><div class="stat-val">{{ predictions|selectattr('eligible_count','gt',0)|list|length }}</div><div class="stat-lbl">Times Eligible</div></div>
+    <div class="stat-card"><div class="stat-val">{{ predictions[0].eligible_count }}</div><div class="stat-lbl">Latest Eligible Schemes</div></div>
+  </div>
+  {% for p in predictions %}
+  <div class="pred-card">
+    <div class="pred-head" onclick="toggle({{ loop.index }})">
+      <div class="pred-meta">
+        <span class="pred-num">#{{ loop.index }}</span>
+        <span class="pred-stream">{{ p.stream }} — Z-Score {{ "%.4f"|format(p.z_score) }}</span>
+        <span class="pred-date"><i class="bi bi-clock"></i> {{ p.created_at[:16].replace('T',' ') }}</span>
+      </div>
+      <div class="pred-badges">
+        {% if p.eligible_count > 0 %}
+        <span class="badge badge-green"><i class="bi bi-check-circle"></i> {{ p.eligible_count }} Eligible</span>
+        {% else %}
+        <span class="badge badge-red"><i class="bi bi-x-circle"></i> Not Eligible</span>
+        {% endif %}
+        <i class="bi bi-chevron-down chevron" id="chev-{{ loop.index }}"></i>
+      </div>
+    </div>
+    <div class="pred-body" id="body-{{ loop.index }}">
+      <div class="info-grid">
+        <div class="info-item"><div class="info-lbl">Z-Score</div><div class="info-val">{{ "%.4f"|format(p.z_score) }}</div></div>
+        <div class="info-item"><div class="info-lbl">Stream</div><div class="info-val">{{ p.stream }}</div></div>
+        <div class="info-item"><div class="info-lbl">District</div><div class="info-val">{{ p.district }}</div></div>
+        <div class="info-item"><div class="info-lbl">Annual Income</div><div class="info-val">Rs. {{ "{:,}".format(p.annual_income) }}</div></div>
+      </div>
+      <div class="schemes-title">Scholarship Results</div>
+      {% for r in p.results %}
+      <div class="scheme-row {{ 'elig' if r.eligible else 'inelig' }}">
+        <div>
+          <div class="scheme-name">{{ r.scheme_name }}</div>
+          <div class="scheme-amt">{{ r.awarding_body }}{% if r.monthly_amount %} · Rs. {{ "{:,}".format(r.monthly_amount) }}/mo{% endif %}</div>
+        </div>
+        <span class="scheme-badge">{{ 'Eligible' if r.eligible else 'Not Eligible' }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="empty">
+    <div class="empty-icon"><i class="bi bi-clipboard-x"></i></div>
+    <div class="empty-title">No predictions yet</div>
+    <div class="empty-sub">Run your first scholarship eligibility check to see results here.</div>
+    <a href="/academic" class="btn-new"><i class="bi bi-plus-circle"></i> Start Prediction</a>
+  </div>
+  {% endif %}
+</div>
+<script>
+function toggle(i){
+  document.getElementById('body-'+i).classList.toggle('open');
+  document.getElementById('chev-'+i).classList.toggle('open');
+}
+</script>
+</body>
+</html>
