@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+﻿{% extends "base.html" %}
 {% block title %}Verify Email{% endblock %}
 {% block body_class %}auth-page{% endblock %}
 
@@ -21,11 +21,7 @@
     </div>
     {% endif %}
 
-    {% if demo_otp %}
-    <div class="form-alert alert-info">
-      🔑 <strong>Demo OTP:</strong> {{ demo_otp }}
-    </div>
-    {% endif %}
+    
 
     <form method="POST"
           action="{{ url_for('auth.verify_otp_page') }}"
@@ -105,6 +101,15 @@ boxes.forEach((box, i) => {
   });
 });
 boxes[0]?.focus();
+
+document.querySelector('form').addEventListener('submit', e => {
+  const val = Array.from(boxes).map(b=>b.value).join('');
+  hidden.value = val;
+  if (val.length !== 6) {
+    e.preventDefault();
+    alert('Please enter all 6 digits.');
+  }
+});
 
 let cd = 60;
 const timerEl  = document.getElementById('timer');

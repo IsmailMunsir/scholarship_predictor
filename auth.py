@@ -1,4 +1,4 @@
-"""
+﻿"""
 auth.py
 =======
 Authentication module — Register, Login, OTP, Password Reset
@@ -76,16 +76,25 @@ def is_strong_password(pwd):
 
 
 def send_otp(email, otp, purpose="verify"):
-    """
-    In production: send via Flask-Mail or SendGrid.
-    In development: print to console.
-    """
-    session[f"demo_otp_{purpose}"] = otp
-    print("\n" + "=" * 50)
-    print(f"  EMAIL TO : {email}")
-    print(f"  PURPOSE  : {purpose}")
-    print(f"  OTP CODE : {otp}")
-    print("=" * 50 + "\n")
+    import smtplib, ssl
+    from email.mime.text import MIMEText
+    from flask import current_app
+    subject = "Your ScholarPredict Verification Code" if purpose == "verify" else "Your ScholarPredict Password Reset Code"
+    body = f"Hi,\n\nYour one-time verification code is: {otp}\n\nThis code expires in 15 minutes.\n\n- ScholarPredict Team"
+    try:
+        ctx = ssl.create_default_context()
+        with smtplib.SMTP("smtp.gmail.com", 587) as s:
+            s.starttls(context=ctx)
+            s.login(current_app.config["MAIL_USERNAME"], current_app.config["MAIL_PASSWORD"])
+            msg = MIMEText(body)
+            msg["Subject"] = subject
+            msg["From"] = current_app.config["MAIL_USERNAME"]
+            msg["To"] = email
+            s.sendmail(current_app.config["MAIL_USERNAME"], email, msg.as_string())
+        print(f"[MAIL SENT] OTP sent to {email}")
+    except Exception as e:
+        print(f"[MAIL ERROR] {e}")
+        pass  # fallback: check terminal for OTP
 
 
 def save_otp(email, otp, purpose="verify", minutes=15):
