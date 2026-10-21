@@ -1,22 +1,19 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prediction History | Esoft</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+﻿{% extends "base.html" %}
+{% block title %}Prediction History{% endblock %}
+
+{% block head %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <style>
-.history-page{max-width:960px;margin:0 auto;padding:32px 20px;}
+.history-page{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem 3rem;}
 .page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
 .page-title{font-size:22px;font-weight:700;color:var(--navy);}
 .page-sub{font-size:13px;color:var(--dgray);margin-top:2px;}
-.btn-primary{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;padding:9px 18px;border-radius:var(--radius);font-size:13.5px;font-weight:600;text-decoration:none;transition:opacity .15s;}
-.btn-primary:hover{opacity:.88;}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
-.stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);}
-.stat-val{font-size:24px;font-weight:700;color:var(--blue);}
-.stat-lbl{font-size:12px;color:var(--dgray);margin-top:2px;}
+.btn-hist{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;padding:9px 18px;border-radius:var(--radius);font-size:13.5px;font-weight:600;text-decoration:none;transition:opacity .15s;}
+.btn-hist:hover{opacity:.88;}
+.h-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.h-stat{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);}
+.h-stat-val{font-size:24px;font-weight:700;color:var(--blue);}
+.h-stat-lbl{font-size:12px;color:var(--dgray);margin-top:2px;}
 .pred-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .15s;}
 .pred-card:hover{box-shadow:0 4px 16px rgba(31,56,100,.12);}
 .pred-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;}
@@ -25,7 +22,7 @@
 .pred-stream{font-size:13px;font-weight:600;color:var(--navy);}
 .pred-date{font-size:12px;color:#9ca3af;}
 .pred-badges{display:flex;align-items:center;gap:8px;}
-.badge{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.h-badge{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px;}
 .badge-green{background:#d1fae5;color:#065f46;}
 .badge-red{background:#fee2e2;color:#991b1b;}
 .chevron{font-size:16px;color:#9ca3af;transition:transform .2s;}
@@ -49,12 +46,10 @@
 .empty-icon{font-size:48px;color:var(--border);margin-bottom:16px;}
 .empty-title{font-size:18px;font-weight:600;color:var(--navy);margin-bottom:8px;}
 .empty-sub{font-size:13.5px;color:var(--dgray);margin-bottom:24px;}
-@media(max-width:600px){.stats{grid-template-columns:1fr 1fr;}.info-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.h-stats{grid-template-columns:1fr 1fr;}.info-grid{grid-template-columns:1fr 1fr;}}
 </style>
-</head>
-<body>
-{% extends "base.html" %}
-{% block title %}Prediction History{% endblock %}
+{% endblock %}
+
 {% block content %}
 <div class="history-page">
   <div class="page-head">
@@ -62,13 +57,13 @@
       <div class="page-title">Prediction History</div>
       <div class="page-sub">All your past scholarship eligibility checks</div>
     </div>
-    <a href="{{ url_for('academic') }}" class="btn-primary"><i class="bi bi-plus-circle"></i> New Prediction</a>
+    <a href="{{ url_for('academic') }}" class="btn-hist"><i class="bi bi-plus-circle"></i> New Prediction</a>
   </div>
   {% if predictions %}
-  <div class="stats">
-    <div class="stat-card"><div class="stat-val">{{ predictions|length }}</div><div class="stat-lbl">Total Predictions</div></div>
-    <div class="stat-card"><div class="stat-val">{{ predictions|selectattr('eligible_count','gt',0)|list|length }}</div><div class="stat-lbl">Times Eligible</div></div>
-    <div class="stat-card"><div class="stat-val">{{ predictions[0].eligible_count }}</div><div class="stat-lbl">Latest Eligible Schemes</div></div>
+  <div class="h-stats">
+    <div class="h-stat"><div class="h-stat-val">{{ predictions|length }}</div><div class="h-stat-lbl">Total Predictions</div></div>
+    <div class="h-stat"><div class="h-stat-val">{{ predictions|selectattr('eligible_count','gt',0)|list|length }}</div><div class="h-stat-lbl">Times Eligible</div></div>
+    <div class="h-stat"><div class="h-stat-val">{{ predictions[0].eligible_count }}</div><div class="h-stat-lbl">Latest Eligible Schemes</div></div>
   </div>
   {% for p in predictions %}
   <div class="pred-card">
@@ -80,9 +75,9 @@
       </div>
       <div class="pred-badges">
         {% if p.eligible_count > 0 %}
-        <span class="badge badge-green"><i class="bi bi-check-circle"></i> {{ p.eligible_count }} Eligible</span>
+        <span class="h-badge badge-green"><i class="bi bi-check-circle"></i> {{ p.eligible_count }} Eligible</span>
         {% else %}
-        <span class="badge badge-red"><i class="bi bi-x-circle"></i> Not Eligible</span>
+        <span class="h-badge badge-red"><i class="bi bi-x-circle"></i> Not Eligible</span>
         {% endif %}
         <i class="bi bi-chevron-down chevron" id="chev-{{ loop.index }}"></i>
       </div>
@@ -112,16 +107,17 @@
     <div class="empty-icon"><i class="bi bi-clipboard-x"></i></div>
     <div class="empty-title">No predictions yet</div>
     <div class="empty-sub">Run your first scholarship eligibility check to see results here.</div>
-    <a href="{{ url_for('academic') }}" class="btn-primary"><i class="bi bi-plus-circle"></i> Start Prediction</a>
+    <a href="{{ url_for('academic') }}" class="btn-hist"><i class="bi bi-plus-circle"></i> Start Prediction</a>
   </div>
   {% endif %}
 </div>
 {% endblock %}
+
+{% block scripts %}
 <script>
 function toggle(i){
   document.getElementById('body-'+i).classList.toggle('open');
   document.getElementById('chev-'+i).classList.toggle('open');
 }
 </script>
-</body>
-</html>
+{% endblock %}
