@@ -40,7 +40,8 @@ main {
   margin: 0;
   padding: 0;
 }
-
+
+
 
 
 /* â”€â”€ Navbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
@@ -668,12 +669,8 @@ main {
   flex: 1;
 }
 
-main {
-  display: block;
-  margin: 0;
-  padding: 0;
-}
-
+
+
 
 .card-top {
   display: flex;
@@ -693,12 +690,8 @@ main {
   display: block;
 }
 
-main {
-  display: block;
-  margin: 0;
-  padding: 0;
-}
-
+
+
 
 .prob-badge {
   font-size: 1.4rem;
@@ -794,12 +787,8 @@ main {
   margin-top: 0.6rem;
 }
 
-main {
-  display: block;
-  margin: 0;
-  padding: 0;
-}
-
+
+
 
 .guide-body h4 {
   font-size: 0.88rem;
