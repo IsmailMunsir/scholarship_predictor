@@ -19,8 +19,7 @@
   <nav class="navbar">
     <div class="nav-inner">
       <a href="{{ url_for('welcome') }}" class="nav-brand">
-        <span class="nav-icon">🎓</span>
-        <span class="nav-title">ScholarshipAI</span>
+        <span class="nav-title" style="font-size:1.1rem;font-weight:800;color:#fff;letter-spacing:0.5px;">&#127979; ScholarshipAI</span>
       </a>
       <div class="nav-links">
         {% if current_user.is_authenticated %}
@@ -84,6 +83,7 @@
   {% block scripts %}{% endblock %}
 </body>
 </html>
+
 
 
 
