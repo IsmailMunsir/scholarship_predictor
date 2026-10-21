@@ -1448,3 +1448,169 @@ main {
     height: 26px;
   }
 }
+
+/* SCHOLARSHIP AI NAVBAR FIX */
+.navbar {
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 64px;
+  min-height: 64px;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: var(--navy, #0b1730);
+  z-index: 1000;
+  box-shadow: 0 3px 0 var(--blue, #2878e5);
+}
+
+.nav-inner {
+  width: 100%;
+  max-width: 1200px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  text-decoration: none;
+}
+
+.nav-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  margin: 0;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  color: #aecde8;
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-link:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.nav-profile {
+  gap: 8px;
+}
+
+.nav-outline,
+.nav-filled {
+  border: 1px solid var(--blue, #2878e5);
+}
+
+.nav-filled {
+  color: #fff;
+  background: var(--blue, #2878e5);
+}
+
+.nav-filled:hover {
+  background: #1d66cc;
+}
+
+.nav-outline:hover {
+  background: var(--blue, #2878e5);
+  color: #fff;
+}
+
+.navbar .avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--blue, #2878e5);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+html {
+  scroll-padding-top: 64px;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+@media (max-width: 600px) {
+  .navbar {
+    height: auto;
+    min-height: 60px;
+  }
+
+  .nav-inner {
+    min-height: 60px;
+    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .nav-title {
+    font-size: 1rem;
+  }
+
+  .nav-links {
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+
+  .nav-link {
+    min-height: 34px;
+    padding: 7px 8px;
+    font-size: 0.82rem;
+  }
+
+  .navbar .avatar {
+    width: 26px;
+    height: 26px;
+  }
+}

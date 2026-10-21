@@ -16,34 +16,27 @@
 <body style="margin:0;padding:0;" class="{% block body_class %}{% endblock %}">
 
   <!-- Navbar -->
-  <nav class="navbar" style="margin:0;padding-top:0;">
-    <div class="nav-inner">
-      <a href="{{ url_for('welcome') }}" class="nav-brand">
-        <span class="nav-title" style="font-size:1.1rem;font-weight:800;color:#fff;letter-spacing:0.5px;">&#127979; ScholarshipAI</span>
-      </a>
-      <div class="nav-links">
-        {% if current_user.is_authenticated %}
-          <a href="{{ url_for('welcome') }}"
-             class="nav-link">Home</a>
-          <a href="{{ url_for('history') }}" class="nav-link">History</a>
-          <a href="{{ url_for('auth.profile') }}"
-             class="nav-link">
-            <span class="avatar">
-              {{ current_user.full_name[0].upper() }}
-            </span>
-            {{ current_user.full_name.split()[0] }}
-          </a>
-          <a href="{{ url_for('auth.logout') }}"
-             class="nav-link nav-outline">Log Out</a>
-        {% else %}
-          <a href="{{ url_for('auth.login') }}"
-             class="nav-link">Log In</a>
-          <a href="{{ url_for('auth.register') }}"
-             class="nav-link nav-filled">Sign Up</a>
-        {% endif %}
-      </div>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="{{ url_for('welcome') }}" class="nav-brand">
+      <span class="nav-title">🏫 ScholarshipAI</span>
+    </a>
+    <div class="nav-links">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('welcome') }}" class="nav-link">Home</a>
+        <a href="{{ url_for('history') }}" class="nav-link">History</a>
+        <a href="{{ url_for('auth.profile') }}" class="nav-link nav-profile">
+          <span class="avatar">{{ (current_user.full_name or 'U')[0].upper() }}</span>
+          <span>{{ (current_user.full_name or 'User').split()[0] }}</span>
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="nav-link nav-outline">Log Out</a>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}" class="nav-link">Log In</a>
+        <a href="{{ url_for('auth.register') }}" class="nav-link nav-filled">Sign Up</a>
+      {% endif %}
     </div>
-  </nav>
+  </div>
+</nav>
 
   <!-- Flash messages -->
   {% with messages =
@@ -83,6 +76,7 @@
   {% block scripts %}{% endblock %}
 </body>
 </html>
+
 
 
 
