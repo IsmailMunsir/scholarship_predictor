@@ -129,7 +129,7 @@ main {
 
 /* â”€â”€ Flash messages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .flash-container {
-  position: fixed;
+  position: sticky;
   top: 70px;
   right: 1rem;
   z-index: 999;
@@ -1266,6 +1266,8 @@ body.auth-page {
     gap: 0.75rem;
   }
 }
+
+
 
 
 
