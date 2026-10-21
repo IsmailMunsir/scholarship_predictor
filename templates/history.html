@@ -4,49 +4,51 @@
 {% block head %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 <style>
-.history-page{max-width:960px;margin:0 auto;padding:1.5rem 1.25rem 3rem;}
-.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
-.page-title{font-size:22px;font-weight:700;color:var(--navy);}
-.page-sub{font-size:13px;color:var(--dgray);margin-top:2px;}
-.btn-hist{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;padding:9px 18px;border-radius:var(--radius);font-size:13.5px;font-weight:600;text-decoration:none;transition:opacity .15s;}
-.btn-hist:hover{opacity:.88;}
-.h-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
-.h-stat{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);}
-.h-stat-val{font-size:24px;font-weight:700;color:var(--blue);}
-.h-stat-lbl{font-size:12px;color:var(--dgray);margin-top:2px;}
-.pred-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .15s;}
-.pred-card:hover{box-shadow:0 4px 16px rgba(31,56,100,.12);}
-.pred-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;}
-.pred-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.pred-num{font-size:12px;font-weight:600;color:var(--blue);background:#e8f0fb;padding:3px 8px;border-radius:6px;}
-.pred-stream{font-size:13px;font-weight:600;color:var(--navy);}
-.pred-date{font-size:12px;color:#9ca3af;}
-.pred-badges{display:flex;align-items:center;gap:8px;}
-.h-badge{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:20px;}
+.history-page{max-width:980px;margin:0 auto;padding:2rem 1.25rem 4rem;}
+.page-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:12px;}
+.page-title{font-size:1.5rem;font-weight:800;color:var(--navy);margin-bottom:0.2rem;}
+.page-sub{font-size:0.85rem;color:var(--dgray);}
+.btn-new{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;padding:0.55rem 1.1rem;border-radius:var(--radius);font-size:0.875rem;font-weight:600;text-decoration:none;transition:background .15s;white-space:nowrap;}
+.btn-new:hover{background:var(--navy);}
+.h-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.75rem;}
+.h-stat{background:#fff;border:1px solid var(--border);border-top:3px solid var(--blue);border-radius:var(--radius);padding:1.2rem 1.4rem;box-shadow:var(--shadow);}
+.h-stat-val{font-size:1.9rem;font-weight:800;color:var(--navy);line-height:1;margin-bottom:0.35rem;}
+.h-stat-lbl{font-size:0.78rem;font-weight:600;color:var(--dgray);text-transform:uppercase;letter-spacing:0.03em;}
+.pred-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:1rem;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .15s;}
+.pred-card:hover{box-shadow:0 4px 20px rgba(31,56,100,.13);}
+.pred-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;cursor:pointer;gap:12px;user-select:none;}
+.pred-head:hover{background:var(--lgray);}
+.pred-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:0;}
+.pred-num{font-size:0.75rem;font-weight:700;color:var(--blue);background:#e8f0fb;padding:3px 9px;border-radius:6px;flex-shrink:0;}
+.pred-stream{font-size:0.875rem;font-weight:600;color:var(--navy);}
+.pred-date{font-size:0.78rem;color:#9ca3af;display:flex;align-items:center;gap:4px;}
+.pred-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.h-badge{font-size:0.75rem;font-weight:700;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;}
 .badge-green{background:#d1fae5;color:#065f46;}
 .badge-red{background:#fee2e2;color:#991b1b;}
-.chevron{font-size:16px;color:#9ca3af;transition:transform .2s;}
+.chevron{font-size:1rem;color:#9ca3af;transition:transform .2s;flex-shrink:0;}
 .chevron.open{transform:rotate(180deg);}
-.pred-body{display:none;padding:16px 18px;}
+.pred-body{display:none;border-top:1px solid var(--border);padding:1.25rem;background:var(--lgray);}
 .pred-body.open{display:block;}
-.info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
-.info-item{background:var(--lgray);border-radius:8px;padding:10px 12px;}
-.info-lbl{font-size:11px;color:var(--dgray);margin-bottom:2px;}
-.info-val{font-size:13px;font-weight:600;color:var(--navy);}
-.schemes-title{font-size:13px;font-weight:600;color:#374151;margin-bottom:8px;}
-.scheme-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;margin-bottom:4px;font-size:12.5px;}
+.info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.25rem;}
+.info-item{background:#fff;border:1px solid var(--border);border-radius:8px;padding:0.75rem 1rem;}
+.info-lbl{font-size:0.7rem;font-weight:600;color:var(--dgray);text-transform:uppercase;letter-spacing:0.03em;margin-bottom:0.3rem;}
+.info-val{font-size:0.9rem;font-weight:700;color:var(--navy);}
+.schemes-title{font-size:0.82rem;font-weight:700;color:var(--dgray);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.6rem;}
+.scheme-row{display:flex;align-items:center;justify-content:space-between;padding:0.7rem 1rem;border-radius:8px;margin-bottom:0.4rem;font-size:0.85rem;gap:12px;}
 .scheme-row.elig{background:#f0fdf4;border:1px solid #bbf7d0;}
-.scheme-row.inelig{background:var(--lgray);border:1px solid var(--border);color:var(--dgray);}
-.scheme-name{font-weight:500;}
-.scheme-amt{font-size:11.5px;color:var(--dgray);}
-.scheme-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;}
+.scheme-row.inelig{background:#fff;border:1px solid var(--border);opacity:0.75;}
+.scheme-name{font-weight:600;color:var(--navy);}
+.scheme-amt{font-size:0.78rem;color:var(--dgray);margin-top:2px;}
+.scheme-badge{font-size:0.72rem;font-weight:700;padding:3px 10px;border-radius:12px;white-space:nowrap;flex-shrink:0;}
 .elig .scheme-badge{background:#d1fae5;color:#065f46;}
-.inelig .scheme-badge{background:var(--border);color:var(--dgray);}
-.empty-box{text-align:center;padding:60px 20px;}
-.empty-icon{font-size:48px;color:var(--border);margin-bottom:16px;}
-.empty-title{font-size:18px;font-weight:600;color:var(--navy);margin-bottom:8px;}
-.empty-sub{font-size:13.5px;color:var(--dgray);margin-bottom:24px;}
-@media(max-width:600px){.h-stats{grid-template-columns:1fr 1fr;}.info-grid{grid-template-columns:1fr 1fr;}}
+.inelig .scheme-badge{background:var(--lgray);color:var(--dgray);}
+.empty-box{text-align:center;padding:4rem 1.5rem;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);}
+.empty-icon{font-size:3rem;color:var(--border);margin-bottom:1rem;}
+.empty-title{font-size:1.15rem;font-weight:700;color:var(--navy);margin-bottom:0.4rem;}
+.empty-sub{font-size:0.88rem;color:var(--dgray);margin-bottom:1.5rem;}
+@media(max-width:700px){.h-stats{grid-template-columns:1fr 1fr;}.info-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:450px){.h-stats{grid-template-columns:1fr;}}
 </style>
 {% endblock %}
 
@@ -57,7 +59,7 @@
       <div class="page-title">Prediction History</div>
       <div class="page-sub">All your past scholarship eligibility checks</div>
     </div>
-    <a href="{{ url_for('academic') }}" class="btn-hist"><i class="bi bi-plus-circle"></i> New Prediction</a>
+    <a href="{{ url_for('academic') }}" class="btn-new"><i class="bi bi-plus-circle"></i> New Prediction</a>
   </div>
   {% if predictions %}
   <div class="h-stats">
@@ -73,7 +75,7 @@
         <span class="pred-stream">{{ p.stream }} &mdash; Z-Score {{ "%.4f"|format(p.z_score) }}</span>
         <span class="pred-date"><i class="bi bi-clock"></i> {{ p.created_at[:16].replace('T',' ') }}</span>
       </div>
-      <div class="pred-badges">
+      <div class="pred-right">
         {% if p.eligible_count > 0 %}
         <span class="h-badge badge-green"><i class="bi bi-check-circle"></i> {{ p.eligible_count }} Eligible</span>
         {% else %}
@@ -87,14 +89,14 @@
         <div class="info-item"><div class="info-lbl">Z-Score</div><div class="info-val">{{ "%.4f"|format(p.z_score) }}</div></div>
         <div class="info-item"><div class="info-lbl">Stream</div><div class="info-val">{{ p.stream }}</div></div>
         <div class="info-item"><div class="info-lbl">District</div><div class="info-val">{{ p.district }}</div></div>
-        <div class="info-item"><div class="info-lbl">Annual Income</div><div class="info-val">Rs. {{ "{:,}".format(p.annual_income) }}</div></div>
+        <div class="info-item"><div class="info-lbl">Annual Income</div><div class="info-val">Rs.&nbsp;{{ "{:,}".format(p.annual_income) }}</div></div>
       </div>
       <div class="schemes-title">Scholarship Results</div>
       {% for r in p.results %}
       <div class="scheme-row {{ 'elig' if r.eligible else 'inelig' }}">
         <div>
           <div class="scheme-name">{{ r.scheme_name }}</div>
-          <div class="scheme-amt">{{ r.awarding_body }}{% if r.monthly_amount %} &middot; Rs. {{ "{:,}".format(r.monthly_amount) }}/mo{% endif %}</div>
+          <div class="scheme-amt">{{ r.awarding_body }}{% if r.monthly_amount %} &middot; Rs.&nbsp;{{ "{:,}".format(r.monthly_amount) }}/mo{% endif %}</div>
         </div>
         <span class="scheme-badge">{{ 'Eligible' if r.eligible else 'Not Eligible' }}</span>
       </div>
@@ -107,7 +109,7 @@
     <div class="empty-icon"><i class="bi bi-clipboard-x"></i></div>
     <div class="empty-title">No predictions yet</div>
     <div class="empty-sub">Run your first scholarship eligibility check to see results here.</div>
-    <a href="{{ url_for('academic') }}" class="btn-hist"><i class="bi bi-plus-circle"></i> Start Prediction</a>
+    <a href="{{ url_for('academic') }}" class="btn-new"><i class="bi bi-plus-circle"></i> Start Prediction</a>
   </div>
   {% endif %}
 </div>
