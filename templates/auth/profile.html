@@ -41,6 +41,22 @@
       </a>
     </div>
 
+    <!-- Edit Profile -->
+    <div class="profile-card">
+      <h2 class="card-title">Edit Profile</h2>
+      <form method="POST" action="{{ url_for('auth.edit_profile') }}" class="auth-form">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="full_name" class="form-input" value="{{ current_user.full_name }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-input" value="{{ current_user.email }}" required>
+        </div>
+        <button type="submit" class="btn-auth">Save Changes</button>
+      </form>
+    </div>
+
     <!-- Change password -->
     <div class="profile-card">
       <h2 class="card-title">Change Password</h2>
@@ -140,6 +156,8 @@
 
 </div>
 {% endblock %}
+
+
 
 
 
