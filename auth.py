@@ -414,3 +414,23 @@ def change_password():
         flash("Password changed successfully.", "success")
 
     return redirect(url_for("auth.profile"))
+
+@auth_bp.route("/edit-profile", methods=["POST"])
+@login_required
+def edit_profile():
+    full_name = request.form.get("full_name", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    if not full_name or len(full_name) < 2:
+        flash("Full name must be at least 2 characters.", "error")
+        return redirect(url_for("auth.profile"))
+    if not is_valid_email(email):
+        flash("Please enter a valid email address.", "error")
+        return redirect(url_for("auth.profile"))
+    existing = execute("SELECT id FROM users WHERE email=? AND id!=?", (email, current_user.id), fetchone=True)
+    if existing:
+        flash("That email is already used by another account.", "error")
+        return redirect(url_for("auth.profile"))
+    execute("UPDATE users SET full_name=?, email=?, updated_at=? WHERE id=?",
+            (full_name, email, datetime.utcnow().isoformat(), current_user.id), commit=True)
+    flash("Profile updated successfully.", "success")
+    return redirect(url_for("auth.profile"))

@@ -319,3 +319,87 @@ if __name__ == "__main__":
     print(f"  Register â†’ http://localhost:{port}/auth/register")
     print(f"{'='*55}\n")
     app.run(debug=debug, host="0.0.0.0", port=port)
+
+@app.route("/delete-prediction/<int:pred_id>", methods=["POST"])
+@login_required
+def delete_prediction(pred_id):
+    from database import execute
+    execute("DELETE FROM predictions WHERE id=? AND user_id=?",
+            (pred_id, current_user.id), commit=True)
+    flash("Prediction deleted.", "info")
+    return redirect(url_for("history"))
+
+@app.route("/export-prediction/<int:pred_id>")
+@login_required
+def export_prediction(pred_id):
+    from database import execute
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import cm
+    import io
+    from flask import make_response
+
+    p = execute("SELECT * FROM predictions WHERE id=? AND user_id=?",
+                (pred_id, current_user.id), fetchone=True)
+    if not p:
+        flash("Prediction not found.", "error")
+        return redirect(url_for("history"))
+
+    import json
+    results = json.loads(p["results_json"]) if p["results_json"] else []
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=2*cm, bottomMargin=2*cm)
+    styles = getSampleStyleSheet()
+    story = []
+
+    story.append(Paragraph("ScholarshipAI - Eligibility Report", styles["Title"]))
+    story.append(Spacer(1, 0.4*cm))
+    story.append(Paragraph(f"Student: {current_user.full_name}", styles["Normal"]))
+    story.append(Paragraph(f"Date: {p['created_at'][:10]}", styles["Normal"]))
+    story.append(Spacer(1, 0.5*cm))
+
+    data = [["Field", "Value"],
+            ["Stream", p["stream"]],
+            ["Z-Score", f"{p['z_score']:.4f}"],
+            ["District", p["district"]],
+            ["Annual Income", f"Rs. {p['annual_income']:,}"],
+            ["Eligible Schemes", str(p["eligible_count"])]]
+    t = Table(data, colWidths=[6*cm, 10*cm])
+    t.setStyle(TableStyle([
+        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#1f3864")),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+        ("BACKGROUND", (0,1), (-1,-1), colors.HexColor("#f4f6fa")),
+        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#f4f6fa")]),
+    ]))
+    story.append(t)
+    story.append(Spacer(1, 0.75*cm))
+
+    if results:
+        story.append(Paragraph("Scholarship Results", styles["Heading2"]))
+        story.append(Spacer(1, 0.3*cm))
+        rdata = [["Scholarship", "Awarding Body", "Amount", "Status"]]
+        for r in results:
+            amt = f"Rs. {r.get('monthly_amount',0):,}/mo" if r.get("monthly_amount") else "-"
+            status = "Eligible" if r.get("eligible") else "Not Eligible"
+            rdata.append([r.get("scheme_name",""), r.get("awarding_body",""), amt, status])
+        rt = Table(rdata, colWidths=[6*cm, 5*cm, 3*cm, 2.5*cm])
+        rt.setStyle(TableStyle([
+            ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#2e75b6")),
+            ("TEXTCOLOR", (0,0), (-1,0), colors.white),
+            ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
+            ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
+            ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#f0fdf4")]),
+        ]))
+        story.append(rt)
+
+    doc.build(story)
+    buffer.seek(0)
+    response = make_response(buffer.read())
+    response.headers["Content-Type"] = "application/pdf"
+    response.headers["Content-Disposition"] = f"attachment; filename=scholarship_report_{pred_id}.pdf"
+    return response
