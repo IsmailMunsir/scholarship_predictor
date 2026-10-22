@@ -332,74 +332,202 @@ def delete_prediction(pred_id):
 @app.route("/export-prediction/<int:pred_id>")
 @login_required
 def export_prediction(pred_id):
+    import io
+    import json
+    from datetime import datetime
+    from xml.sax.saxutils import escape
+
+    from flask import make_response
     from database import execute
-    from reportlab.lib.pagesizes import A4
     from reportlab.lib import colors
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.enums import TA_LEFT
+    from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
     from reportlab.lib.units import cm
-    import io
-    from flask import make_response
+    from reportlab.platypus import (
+        SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    )
 
-    p = execute("SELECT * FROM predictions WHERE id=? AND user_id=?",
-                (pred_id, current_user.id), fetchone=True)
-    if not p:
-        flash("Prediction not found.", "error")
-        return redirect(url_for("history"))
+    try:
+        p = execute(
+            "SELECT * FROM predictions WHERE id=? AND user_id=?",
+            (pred_id, current_user.id),
+            fetchone=True
+        )
 
-    import json
-    results = json.loads(p["results_json"]) if p["results_json"] else []
+        if not p:
+            flash("Prediction not found.", "error")
+            return redirect(url_for("history"))
 
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=2*cm, bottomMargin=2*cm)
-    styles = getSampleStyleSheet()
-    story = []
+        def safe_text(value):
+            return escape(str(value if value is not None else "-"))
 
-    story.append(Paragraph("ScholarshipAI - Eligibility Report", styles["Title"]))
-    story.append(Spacer(1, 0.4*cm))
-    story.append(Paragraph(f"Student: {current_user.full_name}", styles["Normal"]))
-    story.append(Paragraph(f"Date: {p['created_at'][:10]}", styles["Normal"]))
-    story.append(Spacer(1, 0.5*cm))
+        def safe_number(value, decimals=2):
+            try:
+                return f"{float(value):,.{decimals}f}"
+            except (TypeError, ValueError):
+                return "-"
 
-    data = [["Field", "Value"],
-            ["Stream", p["stream"]],
-            ["Z-Score", f"{p['z_score']:.4f}"],
-            ["District", p["district"]],
-            ["Annual Income", f"Rs. {p['annual_income']:,}"],
-            ["Eligible Schemes", str(p["eligible_count"])]]
-    t = Table(data, colWidths=[6*cm, 10*cm])
-    t.setStyle(TableStyle([
-        ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#1f3864")),
-        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
-        ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
-        ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-        ("BACKGROUND", (0,1), (-1,-1), colors.HexColor("#f4f6fa")),
-        ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#f4f6fa")]),
-    ]))
-    story.append(t)
-    story.append(Spacer(1, 0.75*cm))
+        try:
+            results = json.loads(p["results_json"] or "[]")
+            if not isinstance(results, list):
+                results = []
+        except (json.JSONDecodeError, TypeError):
+            results = []
 
-    if results:
-        story.append(Paragraph("Scholarship Results", styles["Heading2"]))
-        story.append(Spacer(1, 0.3*cm))
-        rdata = [["Scholarship", "Awarding Body", "Amount", "Status"]]
-        for r in results:
-            amt = f"Rs. {r.get('monthly_amount',0):,}/mo" if r.get("monthly_amount") else "-"
-            status = "Eligible" if r.get("eligible") else "Not Eligible"
-            rdata.append([r.get("scheme_name",""), r.get("awarding_body",""), amt, status])
-        rt = Table(rdata, colWidths=[6*cm, 5*cm, 3*cm, 2.5*cm])
-        rt.setStyle(TableStyle([
-            ("BACKGROUND", (0,0), (-1,0), colors.HexColor("#2e75b6")),
-            ("TEXTCOLOR", (0,0), (-1,0), colors.white),
-            ("FONTNAME", (0,0), (-1,0), "Helvetica-Bold"),
-            ("GRID", (0,0), (-1,-1), 0.5, colors.grey),
-            ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#f0fdf4")]),
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            rightMargin=2 * cm,
+            leftMargin=2 * cm,
+            topMargin=1.8 * cm,
+            bottomMargin=1.8 * cm,
+            title="ScholarshipAI Eligibility Report",
+            author="ScholarshipAI"
+        )
+
+        styles = getSampleStyleSheet()
+        styles.add(ParagraphStyle(
+            name="Cell",
+            parent=styles["BodyText"],
+            fontName="Helvetica",
+            fontSize=8,
+            leading=10,
+            alignment=TA_LEFT,
+            wordWrap="CJK"
+        ))
+        styles.add(ParagraphStyle(
+            name="SmallHeader",
+            parent=styles["Cell"],
+            fontName="Helvetica-Bold",
+            textColor=colors.white
+        ))
+
+        story = [
+            Paragraph("ScholarshipAI - Eligibility Report", styles["Title"]),
+            Spacer(1, 0.35 * cm),
+            Paragraph(
+                "Student: " + safe_text(current_user.full_name),
+                styles["Normal"]
+            ),
+            Paragraph(
+                "Date: " + safe_text(p["created_at"]),
+                styles["Normal"]
+            ),
+            Spacer(1, 0.5 * cm)
+        ]
+
+        summary = [
+            ["Field", "Value"],
+            ["Stream", safe_text(p["stream"])],
+            ["Z-Score", safe_number(p["z_score"], 4)],
+            ["District", safe_text(p["district"])],
+            [
+                "Annual Income",
+                "Rs. " + safe_number(p["annual_income"], 2)
+            ],
+            ["Eligible Schemes", safe_text(p["eligible_count"])]
+        ]
+
+        summary_table = Table(
+            summary,
+            colWidths=[5 * cm, 11 * cm],
+            repeatRows=1
+        )
+        summary_table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f3864")),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+             [colors.white, colors.HexColor("#f4f6fa")]),
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ("LEFTPADDING", (0, 0), (-1, -1), 7),
+            ("RIGHTPADDING", (0, 0), (-1, -1), 7),
+            ("TOPPADDING", (0, 0), (-1, -1), 7),
+            ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
         ]))
-        story.append(rt)
+        story.extend([summary_table, Spacer(1, 0.6 * cm)])
 
-    doc.build(story)
-    buffer.seek(0)
-    response = make_response(buffer.read())
-    response.headers["Content-Type"] = "application/pdf"
-    response.headers["Content-Disposition"] = f"attachment; filename=scholarship_report_{pred_id}.pdf"
-    return response
+        if results:
+            story.extend([
+                Paragraph("Scholarship Results", styles["Heading2"]),
+                Spacer(1, 0.2 * cm)
+            ])
+
+            rows = [[
+                Paragraph("Scholarship", styles["SmallHeader"]),
+                Paragraph("Awarding Body", styles["SmallHeader"]),
+                Paragraph("Amount", styles["SmallHeader"]),
+                Paragraph("Status", styles["SmallHeader"])
+            ]]
+
+            for item in results:
+                if not isinstance(item, dict):
+                    continue
+
+                amount = item.get("monthly_amount")
+                try:
+                    amount_text = (
+                        "Rs. " + f"{float(amount):,.2f}" + "/mo"
+                        if amount is not None and amount != ""
+                        else "-"
+                    )
+                except (TypeError, ValueError):
+                    amount_text = "-"
+
+                status = (
+                    "Eligible" if item.get("eligible") else "Not Eligible"
+                )
+
+                rows.append([
+                    Paragraph(
+                        safe_text(item.get("scheme_name", "-")),
+                        styles["Cell"]
+                    ),
+                    Paragraph(
+                        safe_text(item.get("awarding_body", "-")),
+                        styles["Cell"]
+                    ),
+                    Paragraph(safe_text(amount_text), styles["Cell"]),
+                    Paragraph(safe_text(status), styles["Cell"])
+                ])
+
+            if len(rows) > 1:
+                result_table = Table(
+                    rows,
+                    colWidths=[5.3 * cm, 4.5 * cm, 3.3 * cm, 2.9 * cm],
+                    repeatRows=1,
+                    hAlign="LEFT"
+                )
+                result_table.setStyle(TableStyle([
+                    ("BACKGROUND", (0, 0), (-1, 0),
+                     colors.HexColor("#2e75b6")),
+                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+                     [colors.white, colors.HexColor("#f0fdf4")]),
+                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING", (0, 0), (-1, -1), 5),
+                    ("RIGHTPADDING", (0, 0), (-1, -1), 5),
+                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+                ]))
+                story.append(result_table)
+
+        doc.build(story)
+        buffer.seek(0)
+
+        response = make_response(buffer.getvalue())
+        response.headers["Content-Type"] = "application/pdf"
+        response.headers["Content-Disposition"] = (
+            f'attachment; filename="scholarship_report_{pred_id}.pdf"'
+        )
+        response.headers["Content-Length"] = str(len(buffer.getvalue()))
+        return response
+
+    except Exception:
+        import logging
+        logging.exception("Scholarship PDF export failed for prediction %s", pred_id)
+        flash("Could not generate the PDF report. Please check the server terminal.", "error")
+        return redirect(url_for("history"))

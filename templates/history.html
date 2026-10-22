@@ -102,8 +102,8 @@
       </div>
       {% endfor %}
       <div style="display:flex;gap:10px;margin-top:1rem;justify-content:flex-end;">
-        <a href="{{ url_for('export_prediction', pred_id=p.id) }}" style="display:inline-flex;align-items:center;gap:5px;background:#2e7d52;color:#fff;padding:7px 14px;border-radius:8px;font-size:0.8rem;font-weight:600;text-decoration:none;">&#128196; Export PDF</a>
-        <form method="POST" action="{{ url_for('delete_prediction', pred_id=p.id) }}" onsubmit="return confirm('Delete this prediction?');" style="margin:0;">
+        <a href="{{ '/export-prediction/' ~ p.id }}" style="display:inline-flex;align-items:center;gap:5px;background:#2e7d52;color:#fff;padding:7px 14px;border-radius:8px;font-size:0.8rem;font-weight:600;text-decoration:none;">&#128196; Export PDF</a>
+        <form method="POST" action="{{ '/delete-prediction/' ~ p.id }}" onsubmit="return confirm('Delete this prediction?');" style="margin:0;">
           <button type="submit" style="display:inline-flex;align-items:center;gap:5px;background:#dc2626;color:#fff;padding:7px 14px;border-radius:8px;font-size:0.8rem;font-weight:600;border:none;cursor:pointer;">&#128465; Delete</button>
         </form>
       </div>
@@ -129,4 +129,8 @@ function toggle(i){
 }
 </script>
 {% endblock %}
+
+
+
+
 
