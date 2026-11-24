@@ -6,11 +6,15 @@ University Scholarship Eligibility Predictor
 """
 
 import os
+import io
 import json
+import logging
 from datetime import datetime
+from xml.sax.saxutils import escape
+
 from flask import (Flask, render_template, request,
                    redirect, url_for, flash,
-                   session, jsonify)
+                   session, jsonify, make_response)
 from flask_login import login_required, current_user
 from dotenv import load_dotenv
 from flask_mail import Mail
@@ -26,7 +30,7 @@ from scholarship_predictor import (
 load_dotenv()
 
 
-# â”€â”€ App factory â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── App factory ────────────────────────────────────────────────────────────
 def create_app():
     app = Flask(__name__)
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -36,22 +40,19 @@ def create_app():
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
     app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_EMAIL')
     Mail(app)
-    app.secret_key = os.getenv(
-        "SECRET_KEY", "dev-secret-key-2026")
+    app.secret_key = os.getenv("SECRET_KEY", "dev-secret-key-2026")
     app.config["SESSION_COOKIE_HTTPONLY"]  = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-    app.config["REMEMBER_COOKIE_DURATION"] = \
-        60 * 60 * 24 * 30  # 30 days
+    app.config["REMEMBER_COOKIE_DURATION"] = 60 * 60 * 24 * 30  # 30 days
 
     # Init extensions
     bcrypt.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view             = "auth.login"
-    login_manager.login_message          = \
-        "Please log in to access this page."
+    login_manager.login_message          = "Please log in to access this page."
     login_manager.login_message_category = "warning"
 
-    # Register auth blueprint
+    # Register blueprints
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(admin_bp, url_prefix="/admin")
 
@@ -65,23 +66,23 @@ def create_app():
 app = create_app()
 
 
-# â”€â”€ Context processor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Context processor ──────────────────────────────────────────────────────
 @app.context_processor
 def inject_globals():
     return {"current_year": datetime.now().year}
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# SCREEN 1 â€” Welcome
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════
+# SCREEN 1 – Welcome
+# ══════════════════════════════════════════════════════════════════════════
 @app.route("/")
 def welcome():
     return render_template("screen1_welcome.html")
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# SCREEN 2 â€” Academic Results
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════
+# SCREEN 2 – Academic Results
+# ══════════════════════════════════════════════════════════════════════════
 @app.route("/academic", methods=["GET", "POST"])
 def academic():
     if request.method == "POST":
@@ -91,8 +92,7 @@ def academic():
             if not (0.5 <= z_val <= 2.8):
                 raise ValueError
         except ValueError:
-            flash("Z-score must be between 0.50 and 2.80.",
-                  "error")
+            flash("Z-score must be between 0.50 and 2.80.", "error")
             return render_template(
                 "screen2_academic.html",
                 streams=list(STREAM_CODES.keys()),
@@ -103,8 +103,7 @@ def academic():
         g3 = request.form.get("grade3", "C")
 
         session["z_score"]       = z_val
-        session["stream"]        = request.form.get(
-            "stream", "Arts")
+        session["stream"]        = request.form.get("stream", "Arts")
         session["grade1"]        = g1
         session["grade2"]        = g2
         session["grade3"]        = g3
@@ -119,9 +118,9 @@ def academic():
         form={})
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# SCREEN 3 â€” Family & Location
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════
+# SCREEN 3 – Family & Location
+# ══════════════════════════════════════════════════════════════════════════
 @app.route("/family", methods=["GET", "POST"])
 def family():
     if request.method == "POST":
@@ -153,9 +152,9 @@ def family():
         form={})
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# SCREEN 4 â€” Processing
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════
+# SCREEN 4 – Processing
+# ══════════════════════════════════════════════════════════════════════════
 @app.route("/processing")
 def processing():
     if not session.get("z_score"):
@@ -163,7 +162,7 @@ def processing():
     return render_template("screen4_processing.html")
 
 
-# â”€â”€ AJAX Predict endpoint â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── AJAX Predict endpoint ──────────────────────────────────────────────────
 @app.route("/predict", methods=["POST"])
 @login_required
 def predict():
@@ -172,15 +171,12 @@ def predict():
             "z_score":           session.get("z_score",   1.0),
             "stream":            session.get("stream",    "Arts"),
             "grade_a_count":     session.get("grade_a_count", 0),
-            "annual_income_lkr": session.get("annual_income",
-                                             500000),
-            "district":          session.get("district",
-                                             "Colombo"),
+            "annual_income_lkr": session.get("annual_income", 500000),
+            "district":          session.get("district",  "Colombo"),
         }
 
         results        = predict_for_student(profile)
-        eligible_count = sum(
-            1 for r in results if r["eligible"])
+        eligible_count = sum(1 for r in results if r["eligible"])
         session["results"] = results
 
         # Save to database
@@ -220,15 +216,14 @@ def predict():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-# SCREEN 5 â€” Results
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════
+# SCREEN 5 – Results
+# ══════════════════════════════════════════════════════════════════════════
 @app.route("/results")
 def results():
     all_r    = session.get("results", [])
     eligible = [r for r in all_r if r["eligible"]]
-    high     = [r for r in all_r
-                if r["probability_pct"] >= 70]
+    high     = [r for r in all_r if r["probability_pct"] >= 70]
     profile  = {
         "z_score":  session.get("z_score"),
         "stream":   session.get("stream"),
@@ -243,7 +238,7 @@ def results():
         profile=profile)
 
 
-# â”€â”€ Reset session â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+# ── Reset session ──────────────────────────────────────────────────────────
 @app.route("/reset")
 def reset():
     for k in ["z_score", "stream", "grade1", "grade2",
@@ -253,9 +248,9 @@ def reset():
     return redirect(url_for("welcome"))
 
 
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════
 # REST API endpoints
-# â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+# ══════════════════════════════════════════════════════════════════════════
 @app.route("/api/districts")
 def api_districts():
     return jsonify(sorted(DISTRICT_FACTORS.keys()))
@@ -263,9 +258,7 @@ def api_districts():
 
 @app.route("/api/schemes")
 def api_schemes():
-    rows = execute(
-        "SELECT * FROM scholarship_schemes",
-        fetchall=True)
+    rows = execute("SELECT * FROM scholarship_schemes", fetchall=True)
     return jsonify([dict(r) for r in rows])
 
 
@@ -280,6 +273,9 @@ def api_history():
     return jsonify([dict(r) for r in rows])
 
 
+# ══════════════════════════════════════════════════════════════════════════
+# History
+# ══════════════════════════════════════════════════════════════════════════
 @app.route("/history")
 @login_required
 def history():
@@ -293,52 +289,37 @@ def history():
     predictions = []
     for r in (rows or []):
         predictions.append({
-            "id": r["id"], "z_score": r["z_score"],
-            "stream": r["stream"], "grade_a_count": r["grade_a_count"],
-            "annual_income": r["annual_income"], "district": r["district"],
-            "eligible_count": r["eligible_count"],
-            "results": json.loads(r["results_json"] or "[]"),
-            "created_at": r["created_at"],
+            "id":            r["id"],
+            "z_score":       r["z_score"],
+            "stream":        r["stream"],
+            "grade_a_count": r["grade_a_count"],
+            "annual_income": r["annual_income"],
+            "district":      r["district"],
+            "eligible_count":r["eligible_count"],
+            "results":       json.loads(r["results_json"] or "[]"),
+            "created_at":    r["created_at"],
         })
     return render_template("history.html", predictions=predictions)
 
 
-# â”€â”€ Error pages â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-
-def server_error(e):
-    return render_template("errors/500.html"), 500
-
-
-# â”€â”€ Run â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-if __name__ == "__main__":
-    port  = int(os.getenv("PORT", 5000))
-    debug = os.getenv("FLASK_DEBUG", "true").lower() == "true"
-    print(f"\n{'='*55}")
-    print(f"  Scholarship Predictor â†’ http://localhost:{port}")
-    print(f"  Login  â†’ http://localhost:{port}/auth/login")
-    print(f"  Register â†’ http://localhost:{port}/auth/register")
-    print(f"{'='*55}\n")
-    app.run(debug=debug, host="0.0.0.0", port=port)
-
+# ══════════════════════════════════════════════════════════════════════════
+# Delete prediction
+# ══════════════════════════════════════════════════════════════════════════
 @app.route("/delete-prediction/<int:pred_id>", methods=["POST"])
 @login_required
 def delete_prediction(pred_id):
-    from database import execute
     execute("DELETE FROM predictions WHERE id=? AND user_id=?",
             (pred_id, current_user.id), commit=True)
     flash("Prediction deleted.", "info")
     return redirect(url_for("history"))
 
+
+# ══════════════════════════════════════════════════════════════════════════
+# Export prediction as PDF
+# ══════════════════════════════════════════════════════════════════════════
 @app.route("/export-prediction/<int:pred_id>")
 @login_required
 def export_prediction(pred_id):
-    import io
-    import json
-    from datetime import datetime
-    from xml.sax.saxutils import escape
-
-    from flask import make_response
-    from database import execute
     from reportlab.lib import colors
     from reportlab.lib.enums import TA_LEFT
     from reportlab.lib.pagesizes import A4
@@ -407,45 +388,34 @@ def export_prediction(pred_id):
         story = [
             Paragraph("ScholarshipAI - Eligibility Report", styles["Title"]),
             Spacer(1, 0.35 * cm),
-            Paragraph(
-                "Student: " + safe_text(current_user.full_name),
-                styles["Normal"]
-            ),
-            Paragraph(
-                "Date: " + safe_text(p["created_at"]),
-                styles["Normal"]
-            ),
+            Paragraph("Student: " + safe_text(current_user.full_name),
+                      styles["Normal"]),
+            Paragraph("Date: " + safe_text(p["created_at"]),
+                      styles["Normal"]),
             Spacer(1, 0.5 * cm)
         ]
 
         summary = [
             ["Field", "Value"],
-            ["Stream", safe_text(p["stream"])],
-            ["Z-Score", safe_number(p["z_score"], 4)],
-            ["District", safe_text(p["district"])],
-            [
-                "Annual Income",
-                "Rs. " + safe_number(p["annual_income"], 2)
-            ],
-            ["Eligible Schemes", safe_text(p["eligible_count"])]
+            ["Stream",          safe_text(p["stream"])],
+            ["Z-Score",         safe_number(p["z_score"], 4)],
+            ["District",        safe_text(p["district"])],
+            ["Annual Income",   "Rs. " + safe_number(p["annual_income"], 2)],
+            ["Eligible Schemes", safe_text(p["eligible_count"])],
         ]
 
-        summary_table = Table(
-            summary,
-            colWidths=[5 * cm, 11 * cm],
-            repeatRows=1
-        )
+        summary_table = Table(summary, colWidths=[5 * cm, 11 * cm], repeatRows=1)
         summary_table.setStyle(TableStyle([
-            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1f3864")),
-            ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
-            ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
-            ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-            ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+            ("BACKGROUND",    (0, 0), (-1, 0), colors.HexColor("#1f3864")),
+            ("TEXTCOLOR",     (0, 0), (-1, 0), colors.white),
+            ("FONTNAME",      (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("GRID",          (0, 0), (-1, -1), 0.5, colors.grey),
+            ("ROWBACKGROUNDS",(0, 1), (-1, -1),
              [colors.white, colors.HexColor("#f4f6fa")]),
-            ("VALIGN", (0, 0), (-1, -1), "TOP"),
-            ("LEFTPADDING", (0, 0), (-1, -1), 7),
-            ("RIGHTPADDING", (0, 0), (-1, -1), 7),
-            ("TOPPADDING", (0, 0), (-1, -1), 7),
+            ("VALIGN",        (0, 0), (-1, -1), "TOP"),
+            ("LEFTPADDING",   (0, 0), (-1, -1), 7),
+            ("RIGHTPADDING",  (0, 0), (-1, -1), 7),
+            ("TOPPADDING",    (0, 0), (-1, -1), 7),
             ("BOTTOMPADDING", (0, 0), (-1, -1), 7),
         ]))
         story.extend([summary_table, Spacer(1, 0.6 * cm)])
@@ -457,10 +427,10 @@ def export_prediction(pred_id):
             ])
 
             rows = [[
-                Paragraph("Scholarship", styles["SmallHeader"]),
-                Paragraph("Awarding Body", styles["SmallHeader"]),
-                Paragraph("Amount", styles["SmallHeader"]),
-                Paragraph("Status", styles["SmallHeader"])
+                Paragraph("Scholarship",  styles["SmallHeader"]),
+                Paragraph("Awarding Body",styles["SmallHeader"]),
+                Paragraph("Amount",       styles["SmallHeader"]),
+                Paragraph("Status",       styles["SmallHeader"]),
             ]]
 
             for item in results:
@@ -477,21 +447,13 @@ def export_prediction(pred_id):
                 except (TypeError, ValueError):
                     amount_text = "-"
 
-                status = (
-                    "Eligible" if item.get("eligible") else "Not Eligible"
-                )
+                status = "Eligible" if item.get("eligible") else "Not Eligible"
 
                 rows.append([
-                    Paragraph(
-                        safe_text(item.get("scheme_name", "-")),
-                        styles["Cell"]
-                    ),
-                    Paragraph(
-                        safe_text(item.get("awarding_body", "-")),
-                        styles["Cell"]
-                    ),
-                    Paragraph(safe_text(amount_text), styles["Cell"]),
-                    Paragraph(safe_text(status), styles["Cell"])
+                    Paragraph(safe_text(item.get("scheme_name",   "-")), styles["Cell"]),
+                    Paragraph(safe_text(item.get("awarding_body", "-")), styles["Cell"]),
+                    Paragraph(safe_text(amount_text),                    styles["Cell"]),
+                    Paragraph(safe_text(status),                         styles["Cell"]),
                 ])
 
             if len(rows) > 1:
@@ -502,32 +464,48 @@ def export_prediction(pred_id):
                     hAlign="LEFT"
                 )
                 result_table.setStyle(TableStyle([
-                    ("BACKGROUND", (0, 0), (-1, 0),
-                     colors.HexColor("#2e75b6")),
-                    ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
-                    ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+                    ("BACKGROUND",    (0, 0), (-1, 0), colors.HexColor("#2e75b6")),
+                    ("GRID",          (0, 0), (-1, -1), 0.5, colors.grey),
+                    ("ROWBACKGROUNDS",(0, 1), (-1, -1),
                      [colors.white, colors.HexColor("#f0fdf4")]),
-                    ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                    ("LEFTPADDING", (0, 0), (-1, -1), 5),
-                    ("RIGHTPADDING", (0, 0), (-1, -1), 5),
-                    ("TOPPADDING", (0, 0), (-1, -1), 6),
+                    ("VALIGN",        (0, 0), (-1, -1), "TOP"),
+                    ("LEFTPADDING",   (0, 0), (-1, -1), 5),
+                    ("RIGHTPADDING",  (0, 0), (-1, -1), 5),
+                    ("TOPPADDING",    (0, 0), (-1, -1), 6),
                     ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
                 ]))
                 story.append(result_table)
 
         doc.build(story)
         buffer.seek(0)
+        pdf_bytes = buffer.getvalue()
 
-        response = make_response(buffer.getvalue())
-        response.headers["Content-Type"] = "application/pdf"
+        response = make_response(pdf_bytes)
+        response.headers["Content-Type"]        = "application/pdf"
         response.headers["Content-Disposition"] = (
             f'attachment; filename="scholarship_report_{pred_id}.pdf"'
         )
-        response.headers["Content-Length"] = str(len(buffer.getvalue()))
+        response.headers["Content-Length"] = str(len(pdf_bytes))
         return response
 
     except Exception:
-        import logging
-        logging.exception("Scholarship PDF export failed for prediction %s", pred_id)
+        logging.exception("PDF export failed for prediction %s", pred_id)
         flash("Could not generate the PDF report. Please check the server terminal.", "error")
         return redirect(url_for("history"))
+
+
+# ── Error pages ────────────────────────────────────────────────────────────
+def server_error(e):
+    return render_template("errors/500.html"), 500
+
+
+# ── Run ────────────────────────────────────────────────────────────────────
+if __name__ == "__main__":
+    port  = int(os.getenv("PORT", 5000))
+    debug = os.getenv("FLASK_DEBUG", "true").lower() == "true"
+    print(f"\n{'='*55}")
+    print(f"  Scholarship Predictor -> http://localhost:{port}")
+    print(f"  Login  -> http://localhost:{port}/auth/login")
+    print(f"  Register -> http://localhost:{port}/auth/register")
+    print(f"{'='*55}\n")
+    app.run(debug=debug, host="0.0.0.0", port=port)
